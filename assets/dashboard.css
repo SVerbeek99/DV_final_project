@@ -1,0 +1,401 @@
+/* =========================================================
+   Tourism & Structural Transformation Dashboard
+   JM0250 Data Visualization — Clean dark theme
+   ========================================================= */
+
+/* ── Base ───────────────────────────────────────────────── */
+body {
+    margin: 0;
+    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    background-color: #0F172A;
+    color: #E2E8F0;
+}
+
+/* ── Two-column chart grid (responsive) ── */
+.chart-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+}
+
+/* ── Controls inner grid ── */
+.controls-inner-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+/* ── KPI grid ── */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    align-content: start;
+}
+
+/* ── Responsive breakpoints ──────────────────────────────── */
+@media (max-width: 1024px) {
+    .chart-grid-2 {
+        grid-template-columns: 1fr;
+    }
+    .controls-inner-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 700px) {
+    .kpi-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ── Dash Dropdown — dark theme ──────────────────────────
+   Dash uses react-select v1 internals under the hood.
+   All !important overrides are intentional to beat Dash's
+   own inline styles.
+   ────────────────────────────────────────────────────── */
+
+/* Outer control box */
+.Select-control {
+    background-color: #1E293B !important;
+    border: 1px solid rgba(148, 163, 184, 0.25) !important;
+    border-radius: 6px !important;
+    color: #E2E8F0 !important;
+    box-shadow: none !important;
+}
+
+.Select-control:hover {
+    border-color: rgba(96, 165, 250, 0.5) !important;
+    box-shadow: none !important;
+}
+
+.is-open > .Select-control {
+    border-color: rgba(96, 165, 250, 0.6) !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+/* Placeholder text */
+.Select-placeholder {
+    color: #64748B !important;
+}
+
+/* Selected single value */
+.Select-value-label {
+    color: #E2E8F0 !important;
+}
+
+/* Input field inside the control */
+.Select-input > input {
+    color: #E2E8F0 !important;
+    font-family: 'Inter', 'Segoe UI', Arial, sans-serif !important;
+}
+
+/* Dropdown arrow */
+.Select-arrow {
+    border-color: #64748B transparent transparent !important;
+}
+
+.is-open .Select-arrow {
+    border-color: transparent transparent #94A3B8 !important;
+}
+
+/* Dropdown menu panel */
+.Select-menu-outer {
+    background-color: #1E293B !important;
+    border: 1px solid rgba(148, 163, 184, 0.25) !important;
+    border-top: none !important;
+    border-bottom-left-radius: 6px !important;
+    border-bottom-right-radius: 6px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
+    z-index: 9999 !important;
+}
+
+/* Individual option */
+.Select-option {
+    background-color: #1E293B !important;
+    color: #CBD5E1 !important;
+    font-size: 13px !important;
+    padding: 7px 12px !important;
+}
+
+.Select-option:hover,
+.Select-option.is-focused {
+    background-color: #334155 !important;
+    color: #E2E8F0 !important;
+}
+
+.Select-option.is-selected {
+    background-color: rgba(96, 165, 250, 0.18) !important;
+    color: #93C5FD !important;
+}
+
+.Select-option.is-disabled {
+    color: #475569 !important;
+}
+
+/* Multi-select tag (pill) */
+.Select-multi-value-wrapper .Select-value {
+    background-color: rgba(96, 165, 250, 0.15) !important;
+    border: 1px solid rgba(96, 165, 250, 0.35) !important;
+    border-radius: 4px !important;
+    color: #93C5FD !important;
+    margin: 2px 3px 2px 0 !important;
+}
+
+.Select-multi-value-wrapper .Select-value-label {
+    color: #93C5FD !important;
+    font-size: 12px !important;
+    padding: 2px 5px !important;
+}
+
+/* × button on multi tags */
+.Select-multi-value-wrapper .Select-value-icon {
+    color: #60A5FA !important;
+    border-right: 1px solid rgba(96, 165, 250, 0.3) !important;
+    padding: 2px 5px !important;
+}
+
+.Select-multi-value-wrapper .Select-value-icon:hover {
+    background-color: rgba(239, 68, 68, 0.2) !important;
+    color: #FCA5A5 !important;
+}
+
+/* Clear × button (single-select) */
+.Select-clear-zone .Select-clear {
+    color: #64748B !important;
+    font-size: 16px !important;
+}
+
+.Select-clear-zone:hover .Select-clear {
+    color: #FCA5A5 !important;
+}
+
+/* Virtualized list (used for large option lists) */
+.VirtualizedSelectFocusedOption {
+    background-color: #334155 !important;
+    color: #E2E8F0 !important;
+}
+
+.VirtualizedSelectSelectedOption {
+    background-color: rgba(96, 165, 250, 0.18) !important;
+    color: #93C5FD !important;
+}
+
+/* No-options message */
+.Select-noresults {
+    background-color: #1E293B !important;
+    color: #64748B !important;
+    font-size: 13px !important;
+    padding: 8px 12px !important;
+}
+
+/* ── RadioItems — dark theme ─────────────────────────────── */
+.dash-radio-items label,
+input[type="radio"] + label {
+    color: #CBD5E1 !important;
+    cursor: pointer;
+}
+
+.dash-radio-items label:hover {
+    color: #E2E8F0 !important;
+}
+
+/* ── Slider — dark theme ─────────────────────────────────── */
+.rc-slider-rail {
+    background-color: #334155 !important;
+}
+
+.rc-slider-track {
+    background-color: #60A5FA !important;
+}
+
+.rc-slider-handle {
+    border-color: #60A5FA !important;
+    background-color: #1E293B !important;
+    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.35) !important;
+}
+
+.rc-slider-handle:hover,
+.rc-slider-handle:active {
+    border-color: #93C5FD !important;
+    box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.25) !important;
+}
+
+.rc-slider-mark-text {
+    color: #64748B !important;
+    font-size: 11px !important;
+}
+
+.rc-slider-mark-text-active {
+    color: #94A3B8 !important;
+}
+
+.rc-slider-dot {
+    background-color: #334155 !important;
+    border-color: #475569 !important;
+}
+
+.rc-slider-dot-active {
+    border-color: #60A5FA !important;
+}
+
+/* Tooltip bubble on slider */
+.rc-slider-tooltip-inner {
+    background-color: #1E293B !important;
+    border: 1px solid rgba(148, 163, 184, 0.25) !important;
+    color: #E2E8F0 !important;
+    font-size: 11px !important;
+    font-family: 'Inter', 'Segoe UI', Arial, sans-serif !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+}
+
+.rc-slider-tooltip-arrow {
+    border-top-color: rgba(148, 163, 184, 0.25) !important;
+}
+
+/* ── Plotly mode bar (ternary zoom) ──────────────────────── */
+.modebar {
+    background-color: rgba(30, 41, 59, 0.85) !important;
+    border-radius: 6px !important;
+}
+
+.modebar-btn path {
+    fill: #94A3B8 !important;
+}
+
+.modebar-btn:hover path {
+    fill: #E2E8F0 !important;
+}
+
+.modebar-btn.active path {
+    fill: #60A5FA !important;
+}
+
+/* Dash 4 component overrides (new class names) */
+.dash-dropdown {
+    background-color: #1E293B !important;
+    border: 1px solid rgba(148, 163, 184, 0.25) !important;
+    color: #E2E8F0 !important;
+}
+
+.dash-dropdown:focus,
+.dash-dropdown[data-state='open'] {
+    border-color: rgba(96, 165, 250, 0.65) !important;
+    outline: 1px solid rgba(96, 165, 250, 0.55) !important;
+}
+
+.dash-dropdown-value,
+.dash-dropdown-value > * {
+    color: #E2E8F0 !important;
+}
+
+.dash-dropdown-placeholder {
+    color: #94A3B8 !important;
+}
+
+.dash-dropdown-value-count {
+    background: rgba(96, 165, 250, 0.16) !important;
+    color: #BFDBFE !important;
+    border: 1px solid rgba(96, 165, 250, 0.35) !important;
+}
+
+.dash-dropdown-trigger-icon,
+.dash-dropdown-clear {
+    color: #94A3B8 !important;
+    fill: #94A3B8 !important;
+}
+
+.dash-dropdown-trigger-icon:hover,
+.dash-dropdown-clear:hover {
+    color: #E2E8F0 !important;
+    fill: #E2E8F0 !important;
+}
+
+.dash-dropdown-content {
+    background: #1E293B !important;
+    border: 1px solid rgba(148, 163, 184, 0.25) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
+}
+
+.dash-dropdown-option {
+    color: #CBD5E1 !important;
+}
+
+.dash-dropdown-option:hover,
+.dash-dropdown-option:focus,
+.dash-dropdown-option:focus-within {
+    background: #334155 !important;
+    color: #E2E8F0 !important;
+}
+
+.dash-dropdown-search-container {
+    background: #1E293B !important;
+    border: 1px solid rgba(148, 163, 184, 0.3) !important;
+}
+
+.dash-dropdown-search {
+    color: #E2E8F0 !important;
+}
+
+.dash-dropdown-search::placeholder {
+    color: #94A3B8 !important;
+}
+
+.dash-dropdown-action-button {
+    color: #CBD5E1 !important;
+}
+
+.dash-dropdown-action-button:hover {
+    color: #93C5FD !important;
+}
+
+.dash-radioitems,
+.dash-radioitems .dash-options-list-option,
+.dash-radioitems .dash-options-list-option-wrapper {
+    color: #CBD5E1 !important;
+}
+
+.dash-radioitems .dash-options-list-option:hover,
+.dash-radioitems .dash-options-list-option-wrapper:hover {
+    color: #E2E8F0 !important;
+}
+
+.dash-radioitems input[type="radio"] {
+    accent-color: #60A5FA;
+}
+
+.dash-slider-track {
+    background-color: #334155 !important;
+}
+
+.dash-slider-range {
+    background-color: #60A5FA !important;
+}
+
+.dash-slider-thumb {
+    background-color: #1E293B !important;
+    border: 2px solid #60A5FA !important;
+    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.35) !important;
+}
+
+.dash-slider-thumb:hover,
+.dash-slider-thumb:focus {
+    border-color: #93C5FD !important;
+    box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.25) !important;
+}
+
+.dash-slider-mark {
+    color: #94A3B8 !important;
+    font-size: 11px !important;
+}
+
+.dash-slider-mark-outside-selection {
+    color: #64748B !important;
+}
+
+.dash-slider-dot {
+    background-color: #334155 !important;
+    border: 1px solid #475569 !important;
+}
