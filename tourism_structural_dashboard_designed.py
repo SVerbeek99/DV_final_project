@@ -60,32 +60,36 @@ REGION_MAP = {
     "United States": "North America",
 }
 
+# Okabe-Ito hues, brightened for dark backgrounds
 REGION_COLORS = {
-    "Europe": "#A78BFA",
-    "Asia": "#22D3EE",
-    "Middle East": "#34D399",
-    "Africa": "#FBBF24",
-    "Latin America & Caribbean": "#FB7185",
-    "North America": "#60A5FA",
-    "Other": "#94A3B8",
+    "Europe": "#4BA3D4",
+    "Asia": "#F0A500",
+    "Middle East": "#2EC9A0",
+    "Africa": "#E0714A",
+    "Latin America & Caribbean": "#D98DB5",
+    "North America": "#70C4EC",
+    "Other": "#AAAAAA",
 }
 
+# Bright, non-neon sector colors readable on dark backgrounds
 SECTOR_COLORS = {
-    "Services": "#22C55E",
-    "Industry": "#F97316",
-    "Agriculture": "#38BDF8",
-    "Tourism": "#E879F9",
+    "Services": "#4ADE80",
+    "Industry": "#FB923C",
+    "Agriculture": "#67E8F9",
+    "Tourism": "#C084FC",
 }
 
+# Clean dark academic theme
 THEME = {
-    "paper": "#111827",
-    "card": "#172033",
-    "card2": "#1F2937",
+    "paper": "#0F172A",
+    "card": "#1E293B",
+    "card2": "#172033",
     "grid": "#334155",
-    "text": "#E5E7EB",
-    "muted": "#9CA3AF",
-    "accent": "#F97316",
-    "accent2": "#22D3EE",
+    "text": "#E2E8F0",
+    "muted": "#94A3B8",
+    "accent": "#60A5FA",
+    "accent2": "#38BDF8",
+    "border": "rgba(148,163,184,0.18)",
 }
 
 SERIES_RENAME = {
@@ -305,29 +309,60 @@ def base_layout(fig: go.Figure, title: str | None = None) -> go.Figure:
         template="plotly_dark",
         paper_bgcolor=THEME["card"],
         plot_bgcolor=THEME["card"],
-        font=dict(color=THEME["text"], family="Inter, Segoe UI, Arial, sans-serif"),
-        title=dict(text=title, font=dict(size=18, color="#F9FAFB"), x=0.02, xanchor="left") if title else None,
-        margin=dict(l=30, r=30, t=70, b=40),
+        font=dict(color=THEME["text"], family="Inter, Segoe UI, Arial, sans-serif", size=12),
+        title=dict(
+            text=title,
+            font=dict(size=13, color=THEME["text"]),
+            x=0.0,
+            xanchor="left",
+            pad=dict(l=4),
+        ) if title else None,
+        margin=dict(l=48, r=20, t=44 if title else 16, b=44),
         legend=dict(
-            bgcolor="rgba(0,0,0,0)",
-            borderwidth=0,
-            font=dict(size=11),
+            bgcolor="rgba(15,23,42,0.85)",
+            bordercolor=THEME["border"],
+            borderwidth=1,
+            font=dict(size=11, color=THEME["text"]),
             orientation="h",
             yanchor="bottom",
             y=1.02,
             xanchor="left",
             x=0,
         ),
-        hoverlabel=dict(bgcolor="#0F172A", font_size=12, font_family="Inter, Arial"),
+        hoverlabel=dict(
+            bgcolor=THEME["card"],
+            bordercolor=THEME["border"],
+            font_size=12,
+            font_family="Inter, Arial",
+            font_color=THEME["text"],
+        ),
     )
-    fig.update_xaxes(gridcolor=THEME["grid"], zerolinecolor="#64748B")
-    fig.update_yaxes(gridcolor=THEME["grid"], zerolinecolor="#64748B")
+    fig.update_xaxes(
+        gridcolor=THEME["grid"],
+        zerolinecolor="#475569",
+        zerolinewidth=1,
+        tickfont=dict(size=11, color=THEME["muted"]),
+        title_font=dict(size=12, color=THEME["text"]),
+    )
+    fig.update_yaxes(
+        gridcolor=THEME["grid"],
+        zerolinecolor="#475569",
+        zerolinewidth=1,
+        tickfont=dict(size=11, color=THEME["muted"]),
+        title_font=dict(size=12, color=THEME["text"]),
+    )
     return fig
 
 
 def empty_figure(message: str) -> go.Figure:
     fig = go.Figure()
-    fig.add_annotation(text=message, x=0.5, y=0.5, showarrow=False, font=dict(size=16, color=THEME["text"]))
+    fig.add_annotation(
+        text=message,
+        x=0.5,
+        y=0.5,
+        showarrow=False,
+        font=dict(size=13, color=THEME["muted"]),
+    )
     fig.update_xaxes(visible=False)
     fig.update_yaxes(visible=False)
     return base_layout(fig)
@@ -350,7 +385,7 @@ def add_regression_line(fig: go.Figure, plot_df: pd.DataFrame, x: str, y: str) -
             y=ys,
             mode="lines",
             name="trend",
-            line=dict(color="#F8FAFC", dash="dash", width=2),
+            line=dict(color="#64748B", dash="dash", width=1.5),
             hoverinfo="skip",
         )
     )
@@ -371,10 +406,218 @@ def latest_year_for_country(var: str, country: str) -> str:
     return str(int(sub["year"].iloc[-1]))
 
 
+# ── Layout component helpers ───────────────────────────────────────────────────
+
+CARD_STYLE = {
+    "background": THEME["card"],
+    "border": f"1px solid {THEME['border']}",
+    "borderRadius": "10px",
+    "padding": "16px",
+    "boxShadow": "0 2px 8px rgba(0,0,0,0.25)",
+}
+
+CONTROL_CARD_STYLE = {
+    "background": THEME["card2"],
+    "border": f"1px solid {THEME['border']}",
+    "borderRadius": "10px",
+    "padding": "16px",
+}
+
+# Hint box style (light blue text on subtle dark-blue tint)
+_HINT_STYLE = {
+    "fontSize": "11px",
+    "color": "#93C5FD",
+    "background": "rgba(96,165,250,0.10)",
+    "borderLeft": "3px solid rgba(96,165,250,0.45)",
+    "borderRadius": "0 4px 4px 0",
+    "padding": "4px 8px",
+    "marginBottom": "8px",
+}
+
+
+def section_header(number: str, title: str, description: str) -> html.Div:
+    return html.Div(
+        style={"marginBottom": "10px", "marginTop": "4px"},
+        children=[
+            html.Div(
+                f"Section {number}",
+                style={
+                    "fontSize": "10px",
+                    "fontWeight": 700,
+                    "letterSpacing": "0.15em",
+                    "textTransform": "uppercase",
+                    "color": THEME["accent"],
+                    "marginBottom": "1px",
+                },
+            ),
+            html.H2(
+                title,
+                style={"margin": "0 0 2px", "fontSize": "15px", "fontWeight": 700, "color": THEME["text"]},
+            ),
+            html.P(
+                description,
+                style={"margin": "0", "fontSize": "12px", "color": THEME["muted"]},
+            ),
+        ],
+    )
+
+
+def chart_card(
+    graph_id: str,
+    title: str,
+    subtitle: str,
+    hint: str | None = None,
+    extra_footer: html.Div | None = None,
+    graph_config: dict | None = None,
+) -> html.Div:
+    """Wrap a dcc.Graph in a styled card with title, subtitle, and optional hint."""
+    config = graph_config if graph_config is not None else {"displayModeBar": False}
+    children: list = [
+        html.Div(
+            title,
+            style={"fontSize": "13px", "fontWeight": 700, "color": THEME["text"], "marginBottom": "1px"},
+        ),
+        html.Div(
+            subtitle,
+            style={"fontSize": "11px", "color": THEME["muted"], "fontStyle": "italic", "marginBottom": "6px"},
+        ),
+    ]
+    if hint:
+        children.append(html.Div(hint, style=_HINT_STYLE))
+    children.append(dcc.Graph(id=graph_id, config=config))
+    if extra_footer:
+        children.append(extra_footer)
+    return html.Div(children=children, style=CARD_STYLE)
+
+
+def control_group(label: str, hint: str | None, *controls) -> html.Div:
+    children: list = [
+        html.Div(
+            label,
+            style={"fontSize": "12px", "fontWeight": 600, "color": THEME["text"], "marginBottom": "5px"},
+        )
+    ]
+    children.extend(controls)
+    if hint:
+        children.append(
+            html.Small(
+                hint,
+                style={"fontSize": "11px", "color": THEME["muted"], "marginTop": "3px", "display": "block"},
+            )
+        )
+    return html.Div(children=children, style={"marginBottom": "2px"})
+
+
+def kpi_card(label: str, value: str, sub: str) -> html.Div:
+    return html.Div(
+        style={
+            "background": THEME["card"],
+            "border": f"1px solid {THEME['border']}",
+            "borderRadius": "8px",
+            "padding": "12px 14px",
+            "minHeight": "76px",
+        },
+        children=[
+            html.Div(
+                label,
+                style={
+                    "fontSize": "10px",
+                    "color": THEME["muted"],
+                    "fontWeight": 700,
+                    "textTransform": "uppercase",
+                    "letterSpacing": "0.06em",
+                    "marginBottom": "3px",
+                },
+            ),
+            html.Div(
+                value,
+                style={"fontSize": "22px", "fontWeight": 800, "color": THEME["text"], "lineHeight": "1.2"},
+            ),
+            html.Div(sub, style={"fontSize": "11px", "color": THEME["muted"], "marginTop": "2px"}),
+        ],
+    )
+
+
 # -----------------------------------------------------------------------------
 # 6. Figures
 # -----------------------------------------------------------------------------
-def fig_tourism_vs_sector(snap: pd.DataFrame, sector_var: str) -> go.Figure:
+
+def _ternary_axes() -> dict:
+    return dict(
+        gridcolor=THEME["grid"],
+        linecolor=THEME["border"],
+        tickfont=dict(size=10, color=THEME["muted"]),
+        title_font=dict(size=12, color=THEME["text"]),
+    )
+
+
+def _ternary_layout(fig: go.Figure) -> go.Figure:
+    ax = _ternary_axes()
+    fig.update_layout(
+        ternary=dict(
+            bgcolor=THEME["card"],
+            sum=100,
+            aaxis=dict(title="Services", **ax),
+            baxis=dict(title="Industry", **ax),
+            caxis=dict(title="Agriculture", **ax),
+        ),
+        paper_bgcolor=THEME["card"],
+        font=dict(color=THEME["text"], family="Inter, Segoe UI, Arial, sans-serif"),
+        margin=dict(l=30, r=60, t=16, b=16),
+        hoverlabel=dict(
+            bgcolor=THEME["card"],
+            bordercolor=THEME["border"],
+            font_size=12,
+            font_family="Inter, Arial",
+            font_color=THEME["text"],
+        ),
+        legend=dict(
+            bgcolor="rgba(15,23,42,0.85)",
+            bordercolor=THEME["border"],
+            borderwidth=1,
+            font=dict(size=11, color=THEME["text"]),
+        ),
+    )
+    return fig
+
+
+def _highlight_focus(
+    fig: go.Figure,
+    plot_df: pd.DataFrame,
+    x: str,
+    y: str,
+    focus_country: str,
+) -> go.Figure:
+    """Overlay a red ring + label on the focus country point in a scatter."""
+    fc = plot_df[plot_df["Country Name"] == focus_country]
+    if fc.empty:
+        return fig
+    row = fc.iloc[0]
+    if pd.isna(row.get(x, np.nan)) or pd.isna(row.get(y, np.nan)):
+        return fig
+    fig.add_trace(
+        go.Scatter(
+            x=[row[x]],
+            y=[row[y]],
+            mode="markers+text",
+            name=f"Focus: {focus_country}",
+            text=[focus_country],
+            textposition="top center",
+            textfont=dict(size=11, color="#FCA5A5"),
+            marker=dict(
+                size=22,
+                color="rgba(239,68,68,0.12)",
+                line=dict(color="#EF4444", width=2.5),
+                symbol="circle",
+            ),
+            hovertemplate=f"<b>{focus_country}</b> (focus country)<extra></extra>",
+            showlegend=True,
+        )
+    )
+    return fig
+
+
+def fig_tourism_vs_sector(snap: pd.DataFrame, sector_var: str, focus_country: str) -> go.Figure:
     plot_df = snap.dropna(subset=["tourism_receipts_pct_exports", sector_var]).copy()
     if plot_df.empty:
         return empty_figure("No data available for this selection.")
@@ -394,22 +637,24 @@ def fig_tourism_vs_sector(snap: pd.DataFrame, sector_var: str) -> go.Figure:
             "gdp_per_capita_current_usd": VAR_LABELS["gdp_per_capita_current_usd"],
         },
         color_discrete_map=REGION_COLORS,
-        size_max=42,
+        size_max=36,
     )
     fig.update_traces(
-        marker=dict(line=dict(color="#F9FAFB", width=1.2), opacity=0.9),
+        marker=dict(line=dict(color="rgba(255,255,255,0.35)", width=1), opacity=0.88),
         hovertemplate=(
             "<b>%{hovertext}</b><br>"
             "Tourism receipts: %{x:.2f}%<br>"
             f"{VAR_LABELS.get(sector_var, sector_var)}: %{{y:.2f}}%<br>"
             "<extra></extra>"
         ),
+        selector=dict(mode="markers"),
     )
     fig = add_regression_line(fig, plot_df, "tourism_receipts_pct_exports", sector_var)
-    return base_layout(fig, f"Tourism dependence vs {VAR_LABELS.get(sector_var, sector_var)}")
+    fig = _highlight_focus(fig, plot_df, "tourism_receipts_pct_exports", sector_var, focus_country)
+    return base_layout(fig)
 
 
-def fig_tourism_vs_outcome(snap: pd.DataFrame, outcome_var: str) -> go.Figure:
+def fig_tourism_vs_outcome(snap: pd.DataFrame, outcome_var: str, focus_country: str) -> go.Figure:
     plot_df = snap.dropna(subset=["tourism_receipts_pct_exports", outcome_var]).copy()
     if plot_df.empty:
         return empty_figure("No outcome data available for this selection.")
@@ -429,19 +674,21 @@ def fig_tourism_vs_outcome(snap: pd.DataFrame, outcome_var: str) -> go.Figure:
             "region": "Region",
         },
         color_discrete_map=REGION_COLORS,
-        size_max=42,
+        size_max=36,
     )
     fig.update_traces(
-        marker=dict(line=dict(color="#F9FAFB", width=1.2), opacity=0.9),
+        marker=dict(line=dict(color="rgba(255,255,255,0.35)", width=1), opacity=0.88),
         hovertemplate=(
             "<b>%{hovertext}</b><br>"
             "Tourism receipts: %{x:.2f}%<br>"
             f"{VAR_LABELS.get(outcome_var, outcome_var)}: %{{y:.2f}}<br>"
             "<extra></extra>"
         ),
+        selector=dict(mode="markers"),
     )
     fig = add_regression_line(fig, plot_df, "tourism_receipts_pct_exports", outcome_var)
-    return base_layout(fig, f"Tourism dependence vs {VAR_LABELS.get(outcome_var, outcome_var)}")
+    fig = _highlight_focus(fig, plot_df, "tourism_receipts_pct_exports", outcome_var, focus_country)
+    return base_layout(fig)
 
 
 def fig_country_trajectory_triangle(country: str) -> go.Figure:
@@ -450,12 +697,23 @@ def fig_country_trajectory_triangle(country: str) -> go.Figure:
     if cdf.empty:
         return empty_figure("No employment-composition data available for this country.")
 
-    marker_size = normalize_marker_size(cdf.get("tourism_receipts_pct_exports", pd.Series(index=cdf.index)), 8, 22)
+    marker_size = normalize_marker_size(
+        cdf.get("tourism_receipts_pct_exports", pd.Series(index=cdf.index)), 8, 22
+    )
     marker_size = marker_size.fillna(10)
+
     hover = []
     for _, r in cdf.iterrows():
-        tourism_text = "n/a" if pd.isna(r.get("tourism_receipts_pct_exports", np.nan)) else f"{r['tourism_receipts_pct_exports']:.2f}% of exports"
-        gdp_text = "n/a" if pd.isna(r.get("gdp_per_capita_current_usd", np.nan)) else f"${r['gdp_per_capita_current_usd']:,.0f}"
+        tourism_text = (
+            "n/a"
+            if pd.isna(r.get("tourism_receipts_pct_exports", np.nan))
+            else f"{r['tourism_receipts_pct_exports']:.2f}% of exports"
+        )
+        gdp_text = (
+            "n/a"
+            if pd.isna(r.get("gdp_per_capita_current_usd", np.nan))
+            else f"${r['gdp_per_capita_current_usd']:,.0f}"
+        )
         hover.append(
             f"<b>{country}</b><br>"
             f"Year: {int(r['year'])}<br>"
@@ -475,21 +733,27 @@ def fig_country_trajectory_triangle(country: str) -> go.Figure:
             mode="lines+markers",
             text=hover,
             hovertemplate="%{text}<extra></extra>",
-            line=dict(color="#E879F9", width=3),
+            line=dict(color="#475569", width=1.8),
             marker=dict(
                 size=marker_size,
                 color=cdf["year"],
-                colorscale="Turbo",
+                # Viridis: perceptually ordered sequential — dark purple = earliest, bright yellow = latest
+                colorscale="Viridis",
                 showscale=True,
-                colorbar=dict(title="Year", thickness=12),
-                line=dict(color="#F8FAFC", width=1.1),
-                opacity=0.95,
+                colorbar=dict(
+                    title=dict(text="Year", font=dict(size=11, color=THEME["text"])),
+                    thickness=12,
+                    tickfont=dict(size=10, color=THEME["text"]),
+                    outlinewidth=0,
+                    bgcolor="rgba(0,0,0,0)",
+                ),
+                line=dict(color="rgba(255,255,255,0.4)", width=1),
+                opacity=0.92,
             ),
             name=country,
         )
     )
 
-    # Emphasize start and end points.
     first = cdf.iloc[0]
     last = cdf.iloc[-1]
     fig.add_trace(
@@ -500,34 +764,37 @@ def fig_country_trajectory_triangle(country: str) -> go.Figure:
             mode="markers+text",
             text=["Start", "Latest"],
             textposition=["bottom center", "top center"],
-            marker=dict(size=[13, 16], color=["#38BDF8", "#F97316"], line=dict(color="#F8FAFC", width=1.2)),
+            textfont=dict(size=10, color=THEME["text"]),
+            marker=dict(
+                size=[12, 15],
+                color=["#60A5FA", "#FBBF24"],
+                line=dict(color="rgba(255,255,255,0.6)", width=1.5),
+            ),
             hoverinfo="skip",
             showlegend=False,
         )
     )
 
-    fig.update_layout(
-        ternary=dict(
-            bgcolor=THEME["card"],
-            sum=100,
-            aaxis=dict(title="Services", gridcolor="#475569", linecolor="#64748B", tickfont=dict(size=10)),
-            baxis=dict(title="Industry", gridcolor="#475569", linecolor="#64748B", tickfont=dict(size=10)),
-            caxis=dict(title="Agriculture", gridcolor="#475569", linecolor="#64748B", tickfont=dict(size=10)),
-        )
-    )
-    return base_layout(fig, f"Structural pathway in the employment triangle: {country}")
+    return _ternary_layout(fig)
 
 
-def fig_composition_triangle(snap: pd.DataFrame) -> go.Figure:
+def fig_composition_triangle(snap: pd.DataFrame, focus_country: str) -> go.Figure:
     plot_df = snap.dropna(subset=["services_avg", "industry_avg", "agriculture_avg"]).copy()
     if plot_df.empty:
         return empty_figure("No sector-composition data available for selected countries.")
 
-    marker_size = normalize_marker_size(plot_df.get("tourism_receipts_pct_exports", pd.Series(index=plot_df.index)), 9, 26)
+    marker_size = normalize_marker_size(
+        plot_df.get("tourism_receipts_pct_exports", pd.Series(index=plot_df.index)), 9, 26
+    )
     marker_size = marker_size.fillna(11)
+
     hover = []
     for _, r in plot_df.iterrows():
-        tourism_text = "n/a" if pd.isna(r.get("tourism_receipts_pct_exports", np.nan)) else f"{r['tourism_receipts_pct_exports']:.2f}% ({source_year(r, 'tourism_receipts_pct_exports')})"
+        tourism_text = (
+            "n/a"
+            if pd.isna(r.get("tourism_receipts_pct_exports", np.nan))
+            else f"{r['tourism_receipts_pct_exports']:.2f}% ({source_year(r, 'tourism_receipts_pct_exports')})"
+        )
         hover.append(
             f"<b>{r['Country Name']}</b><br>"
             f"Region: {r['region']}<br>"
@@ -538,38 +805,74 @@ def fig_composition_triangle(snap: pd.DataFrame) -> go.Figure:
         )
 
     fig = go.Figure()
+
+    # Draw non-focus countries grouped by region
     for region, rdf in plot_df.groupby("region"):
-        idx = rdf.index
+        non_focus = rdf[rdf["Country Name"] != focus_country]
+        if non_focus.empty:
+            continue
+        idx = non_focus.index
         fig.add_trace(
             go.Scatterternary(
-                a=rdf["services_avg"],
-                b=rdf["industry_avg"],
-                c=rdf["agriculture_avg"],
+                a=non_focus["services_avg"],
+                b=non_focus["industry_avg"],
+                c=non_focus["agriculture_avg"],
                 mode="markers+text",
-                text=rdf["Country Name"],
+                text=non_focus["Country Name"],
                 textposition="top center",
+                textfont=dict(size=9, color=THEME["muted"]),
                 hovertext=[hover[plot_df.index.get_loc(i)] for i in idx],
                 hovertemplate="%{hovertext}<extra></extra>",
                 marker=dict(
                     size=marker_size.loc[idx],
                     color=REGION_COLORS.get(region, REGION_COLORS["Other"]),
-                    line=dict(color="#F8FAFC", width=1.1),
-                    opacity=0.9,
+                    line=dict(color="rgba(255,255,255,0.3)", width=1),
+                    opacity=0.88,
                 ),
                 name=region,
             )
         )
 
-    fig.update_layout(
-        ternary=dict(
-            bgcolor=THEME["card"],
-            sum=100,
-            aaxis=dict(title="Services", gridcolor="#475569", linecolor="#64748B", tickfont=dict(size=10)),
-            baxis=dict(title="Industry", gridcolor="#475569", linecolor="#64748B", tickfont=dict(size=10)),
-            caxis=dict(title="Agriculture", gridcolor="#475569", linecolor="#64748B", tickfont=dict(size=10)),
+    # Draw focus country as a highlighted separate trace
+    fc_row = plot_df[plot_df["Country Name"] == focus_country]
+    if not fc_row.empty:
+        r = fc_row.iloc[0]
+        fc_idx = fc_row.index[0]
+        fc_tourism = (
+            "n/a"
+            if pd.isna(r.get("tourism_receipts_pct_exports", np.nan))
+            else f"{r['tourism_receipts_pct_exports']:.2f}% ({source_year(r, 'tourism_receipts_pct_exports')})"
         )
-    )
-    return base_layout(fig, "Employment composition landscape")
+        fc_hover = (
+            f"<b>{focus_country}</b> (focus)<br>"
+            f"Region: {r['region']}<br>"
+            f"Services: {r['services_avg']:.1f}%<br>"
+            f"Industry: {r['industry_avg']:.1f}%<br>"
+            f"Agriculture: {r['agriculture_avg']:.1f}%<br>"
+            f"Tourism receipts: {fc_tourism}"
+        )
+        fig.add_trace(
+            go.Scatterternary(
+                a=[r["services_avg"]],
+                b=[r["industry_avg"]],
+                c=[r["agriculture_avg"]],
+                mode="markers+text",
+                text=[focus_country],
+                textposition="top center",
+                textfont=dict(size=11, color="#FCA5A5"),
+                hovertext=[fc_hover],
+                hovertemplate="%{hovertext}<extra></extra>",
+                marker=dict(
+                    size=[marker_size.loc[fc_idx] + 6],
+                    color=REGION_COLORS.get(r["region"], REGION_COLORS["Other"]),
+                    line=dict(color="#EF4444", width=2.5),
+                    opacity=1.0,
+                ),
+                name=f"Focus: {focus_country}",
+            )
+        )
+
+    return _ternary_layout(fig)
 
 
 def fig_shift_dotplot(df_selected: pd.DataFrame, countries: List[str]) -> go.Figure:
@@ -605,16 +908,18 @@ def fig_shift_dotplot(df_selected: pd.DataFrame, countries: List[str]) -> go.Fig
                 mode="markers",
                 name=sector,
                 marker=dict(
-                    size=14,
+                    size=12,
                     symbol=symbols[sector],
                     color=SECTOR_COLORS[sector],
-                    line=dict(color="#F8FAFC", width=1),
+                    line=dict(color="rgba(255,255,255,0.3)", width=1),
+                    opacity=0.92,
                 ),
-                hovertemplate="<b>%{y}</b><br>Sector: " + sector + "<br>Change: %{x:.1f} percentage points<extra></extra>",
+                hovertemplate=(
+                    "<b>%{y}</b><br>Sector: " + sector + "<br>Change: %{x:.1f} pp<extra></extra>"
+                ),
             )
         )
 
-    # subtle zero-origin lollipops for readability
     for _, r in shift.iterrows():
         fig.add_shape(
             type="line",
@@ -622,15 +927,14 @@ def fig_shift_dotplot(df_selected: pd.DataFrame, countries: List[str]) -> go.Fig
             x1=r["Change"],
             y0=r["Country Name"],
             y1=r["Country Name"],
-            line=dict(color="rgba(148,163,184,0.25)", width=1),
+            line=dict(color=THEME["grid"], width=1),
             layer="below",
         )
 
-    fig.add_vline(x=0, line_width=1.4, line_dash="dash", line_color="#CBD5E1")
-    fig.update_yaxes(categoryorder="array", categoryarray=service_order)
-    fig.update_xaxes(title="Change in employment share, percentage points", zeroline=False)
-    fig.update_yaxes(title="")
-    return base_layout(fig, "Structural shift scoreboard: first year to latest year")
+    fig.add_vline(x=0, line_width=1.2, line_dash="dash", line_color="#475569")
+    fig.update_yaxes(categoryorder="array", categoryarray=service_order, title="")
+    fig.update_xaxes(title="Change in employment share (percentage points)", zeroline=False)
+    return base_layout(fig)
 
 
 def fig_coverage_matrix(df_selected: pd.DataFrame, countries: List[str]) -> go.Figure:
@@ -659,18 +963,26 @@ def fig_coverage_matrix(df_selected: pd.DataFrame, countries: List[str]) -> go.F
                 category = 2
             else:
                 category = 3
-            rows.append({"Country": country, "Indicator": VAR_LABELS.get(var, var), "Coverage": pct, "Category": category, "Text": f"{pct:.0f}%"})
+            rows.append({
+                "Country": country,
+                "Indicator": VAR_LABELS.get(var, var),
+                "Coverage": pct,
+                "Category": category,
+                "Text": f"{pct:.0f}%",
+            })
     cov = pd.DataFrame(rows)
     if cov.empty:
         return empty_figure("No coverage information available.")
 
     z = cov.pivot(index="Indicator", columns="Country", values="Category")
     text = cov.pivot(index="Indicator", columns="Country", values="Text")
+
+    # Pastel sequential: red → orange → yellow → green. Text is hardcoded dark for readability on pastels.
     colorscale = [
-        [0.00, "#7F1D1D"], [0.249, "#7F1D1D"],
-        [0.25, "#B45309"], [0.499, "#B45309"],
-        [0.50, "#CA8A04"], [0.749, "#CA8A04"],
-        [0.75, "#16A34A"], [1.00, "#16A34A"],
+        [0.00, "#FECACA"], [0.249, "#FECACA"],
+        [0.25, "#FED7AA"], [0.499, "#FED7AA"],
+        [0.50, "#FEF08A"], [0.749, "#FEF08A"],
+        [0.75, "#BBF7D0"], [1.00, "#BBF7D0"],
     ]
     fig = go.Figure(
         data=go.Heatmap(
@@ -679,7 +991,7 @@ def fig_coverage_matrix(df_selected: pd.DataFrame, countries: List[str]) -> go.F
             y=z.index,
             text=text.values,
             texttemplate="%{text}",
-            textfont=dict(color="#F8FAFC", size=10),
+            textfont=dict(color="#1E293B", size=10),  # dark text on pastel cells
             colorscale=colorscale,
             zmin=0,
             zmax=3,
@@ -687,165 +999,418 @@ def fig_coverage_matrix(df_selected: pd.DataFrame, countries: List[str]) -> go.F
             hovertemplate="<b>%{x}</b><br>%{y}<br>Coverage: %{text}<extra></extra>",
         )
     )
-    fig.update_xaxes(tickangle=35)
-    return base_layout(fig, "Data coverage matrix — explicit missingness")
+    fig.update_xaxes(tickangle=35, tickfont=dict(size=10))
+    fig.update_yaxes(tickfont=dict(size=10))
+    return base_layout(fig)
 
 
 # -----------------------------------------------------------------------------
-# 7. Dash app
+# 7. Dash app and layout
 # -----------------------------------------------------------------------------
 app = Dash(__name__)
 app.title = "Tourism & Structural Transformation"
 
-CARD_STYLE = {
-    "background": "linear-gradient(180deg, #1F2937 0%, #111827 100%)",
-    "border": "1px solid rgba(148,163,184,0.22)",
-    "borderRadius": "18px",
-    "padding": "14px",
-    "boxShadow": "0 18px 38px rgba(0,0,0,0.24)",
-}
+_SPACER = html.Div(style={"height": "14px"})
 
-CONTROL_STYLE = {
-    "background": "#0F172A",
-    "border": "1px solid rgba(148,163,184,0.25)",
-    "borderRadius": "18px",
-    "padding": "16px",
-}
+# Config for ternary charts: show mode bar so zoom in/out buttons are accessible
+_TERNARY_CONFIG = {"displayModeBar": True, "modeBarButtonsToRemove": ["toImage"]}
 
 app.layout = html.Div(
     style={
         "fontFamily": "Inter, Segoe UI, Arial, sans-serif",
-        "padding": "22px",
-        "background": "radial-gradient(circle at top left, #1E3A8A 0%, #111827 28%, #030712 100%)",
+        "background": THEME["paper"],
         "minHeight": "100vh",
         "color": THEME["text"],
+        "padding": "20px",
+        "boxSizing": "border-box",
     },
     children=[
+
+        # ── Header ──────────────────────────────────────────────────────────
         html.Div(
-            style={"display": "flex", "alignItems": "flex-end", "justifyContent": "space-between", "gap": "16px", "marginBottom": "18px"},
+            style={
+                "background": THEME["card"],
+                "border": f"1px solid {THEME['border']}",
+                "borderRadius": "10px",
+                "padding": "18px 22px",
+                "marginBottom": "14px",
+                "boxShadow": "0 2px 8px rgba(0,0,0,0.25)",
+            },
             children=[
-                html.Div([
-                    html.Div("DATA VISUALIZATION PROJECT", style={"letterSpacing": "0.18em", "fontSize": "11px", "color": THEME["accent2"], "fontWeight": 700}),
-                    html.H1("Tourism & Structural Transformation", style={"margin": "5px 0 3px", "fontSize": "34px", "lineHeight": "1.05"}),
-                    html.Div(
-                        "Exploring whether tourism-led development is associated with a service-oriented employment shift, "
-                        "and whether this transformation coincides with broader development outcomes.",
-                        style={"fontSize": "15px", "maxWidth": "980px", "color": "#CBD5E1"},
-                    ),
-                ]),
-                html.Div("Exploratory · linked views · country comparison", style={"fontSize": "12px", "color": "#CBD5E1", "border": "1px solid rgba(148,163,184,0.35)", "borderRadius": "999px", "padding": "8px 12px", "whiteSpace": "nowrap"}),
+                html.Div(
+                    style={
+                        "display": "flex",
+                        "alignItems": "flex-start",
+                        "justifyContent": "space-between",
+                        "gap": "16px",
+                    },
+                    children=[
+                        html.Div([
+                            html.Div(
+                                "JM0250 DATA VISUALIZATION · EXPLORATORY ANALYSIS",
+                                style={
+                                    "fontSize": "10px",
+                                    "letterSpacing": "0.15em",
+                                    "color": THEME["muted"],
+                                    "fontWeight": 700,
+                                    "marginBottom": "4px",
+                                },
+                            ),
+                            html.H1(
+                                "Tourism & Structural Transformation Dashboard",
+                                style={
+                                    "margin": "0 0 6px",
+                                    "fontSize": "22px",
+                                    "fontWeight": 800,
+                                    "color": THEME["text"],
+                                    "lineHeight": "1.2",
+                                },
+                            ),
+                            html.P(
+                                "Exploring how tourism dependence associates with employment-sector composition "
+                                "and broader development outcomes across a set of countries.",
+                                style={"margin": "0", "fontSize": "13px", "color": THEME["muted"], "maxWidth": "680px"},
+                            ),
+                        ]),
+                        html.Div(
+                            style={
+                                "display": "flex",
+                                "flexDirection": "column",
+                                "alignItems": "flex-end",
+                                "gap": "6px",
+                                "flexShrink": 0,
+                            },
+                            children=[
+                                html.Div(
+                                    "Association, not causation",
+                                    style={
+                                        "fontSize": "11px",
+                                        "color": "#FCD34D",
+                                        "background": "rgba(245,158,11,0.15)",
+                                        "border": "1px solid rgba(245,158,11,0.35)",
+                                        "borderRadius": "999px",
+                                        "padding": "5px 12px",
+                                        "fontWeight": 600,
+                                        "whiteSpace": "nowrap",
+                                    },
+                                ),
+                                html.Div(
+                                    "Coordinated views · Click-to-focus · WDI data",
+                                    style={"fontSize": "11px", "color": THEME["muted"]},
+                                ),
+                            ],
+                        ),
+                    ],
+                ),
             ],
         ),
 
+        # ── Controls + KPIs ──────────────────────────────────────────────────
         html.Div(
-            style={"display": "grid", "gridTemplateColumns": "1.4fr 1fr", "gap": "16px", "marginBottom": "16px"},
+            style={
+                "display": "grid",
+                "gridTemplateColumns": "2fr 1fr",
+                "gap": "14px",
+                "marginBottom": "14px",
+            },
             children=[
+                # Controls panel
                 html.Div(
-                    style=CONTROL_STYLE,
+                    style=CONTROL_CARD_STYLE,
                     children=[
-                        html.Div("Controls", style={"fontWeight": 700, "marginBottom": "10px", "color": "#F8FAFC"}),
                         html.Div(
-                            style={"display": "grid", "gridTemplateColumns": "1fr 1fr", "gap": "14px"},
-                            children=[
-                                html.Div([
-                                    html.Label("Selected countries", style={"fontSize": "12px", "color": "#CBD5E1"}),
-                                    dcc.Dropdown(
-                                        id="countries",
-                                        options=[{"label": c, "value": c} for c in COUNTRIES],
-                                        value=DEFAULT_COUNTRIES,
-                                        multi=True,
-                                        style={"color": "#111827"},
-                                    ),
-                                ]),
-                                html.Div([
-                                    html.Label("Focus country", style={"fontSize": "12px", "color": "#CBD5E1"}),
-                                    dcc.Dropdown(
-                                        id="focus_country",
-                                        options=[{"label": c, "value": c} for c in COUNTRIES],
-                                        value=DEFAULT_FOCUS_COUNTRY,
-                                        clearable=False,
-                                        style={"color": "#111827"},
-                                    ),
-                                    html.Small("Click a country in the first scatter to update this view.", style={"color": THEME["muted"]}),
-                                ]),
-                                html.Div([
-                                    html.Label("Comparison year", style={"fontSize": "12px", "color": "#CBD5E1"}),
-                                    dcc.Slider(
-                                        id="year",
-                                        min=min(YEARS),
-                                        max=max(YEARS),
-                                        step=1,
-                                        value=DEFAULT_YEAR,
-                                        marks={int(y): str(int(y)) for y in YEARS if int(y) in [min(YEARS), 2010, 2015, 2020, max(YEARS)]},
-                                        tooltip={"placement": "bottom", "always_visible": False},
-                                    ),
-                                ]),
-                                html.Div([
-                                    html.Label("Data mode", style={"fontSize": "12px", "color": "#CBD5E1"}),
-                                    dcc.RadioItems(
-                                        id="mode",
-                                        options=[
-                                            {"label": "Latest available up to selected year", "value": "latest"},
-                                            {"label": "Exact selected year only", "value": "exact"},
-                                        ],
-                                        value="latest",
-                                        labelStyle={"display": "block", "margin": "3px 0", "fontSize": "13px"},
-                                    ),
-                                ]),
-                            ],
+                            "Dashboard controls",
+                            style={"fontSize": "12px", "fontWeight": 700, "color": THEME["text"], "marginBottom": "12px"},
                         ),
                         html.Div(
-                            style={"display": "grid", "gridTemplateColumns": "1fr 1fr", "gap": "14px", "marginTop": "12px"},
+                            className="controls-inner-grid",
+                            style={"display": "grid", "gridTemplateColumns": "1fr 1fr", "gap": "14px"},
                             children=[
+                                # Left column: Scope + Encodings
                                 html.Div([
-                                    html.Label("Sector variable", style={"fontSize": "12px", "color": "#CBD5E1"}),
-                                    dcc.Dropdown(id="sector_var", options=SECTOR_OPTIONS, value="services_avg", clearable=False, style={"color": "#111827"}),
+                                    control_group(
+                                        "Scope — selected countries",
+                                        None,
+                                        dcc.Dropdown(
+                                            id="countries",
+                                            options=[{"label": c, "value": c} for c in COUNTRIES],
+                                            value=DEFAULT_COUNTRIES,
+                                            multi=True,
+                                        ),
+                                    ),
+                                    _SPACER,
+                                    control_group(
+                                        "Encoding — sector variable (left scatter, y-axis)",
+                                        None,
+                                        dcc.Dropdown(
+                                            id="sector_var",
+                                            options=SECTOR_OPTIONS,
+                                            value="services_avg",
+                                            clearable=False,
+                                        ),
+                                    ),
+                                    _SPACER,
+                                    control_group(
+                                        "Encoding — outcome variable (right scatter, y-axis)",
+                                        None,
+                                        dcc.Dropdown(
+                                            id="outcome_var",
+                                            options=OUTCOME_OPTIONS,
+                                            value="poverty_headcount_pct",
+                                            clearable=False,
+                                        ),
+                                    ),
                                 ]),
+                                # Right column: Time + Mode + Focus
                                 html.Div([
-                                    html.Label("Outcome variable", style={"fontSize": "12px", "color": "#CBD5E1"}),
-                                    dcc.Dropdown(id="outcome_var", options=OUTCOME_OPTIONS, value="poverty_headcount_pct", clearable=False, style={"color": "#111827"}),
+                                    control_group(
+                                        "Time — comparison year",
+                                        None,
+                                        dcc.Slider(
+                                            id="year",
+                                            min=min(YEARS),
+                                            max=max(YEARS),
+                                            step=1,
+                                            value=DEFAULT_YEAR,
+                                            marks={
+                                                int(y): str(int(y))
+                                                for y in YEARS
+                                                if int(y) in [min(YEARS), 2010, 2015, 2020, max(YEARS)]
+                                            },
+                                            tooltip={"placement": "bottom", "always_visible": False},
+                                        ),
+                                    ),
+                                    _SPACER,
+                                    control_group(
+                                        "Data mode",
+                                        "'Latest' uses the most recent value up to the selected year; "
+                                        "'Exact' shows data only from that specific year.",
+                                        dcc.RadioItems(
+                                            id="mode",
+                                            options=[
+                                                {"label": "Latest available up to selected year", "value": "latest"},
+                                                {"label": "Exact selected year only", "value": "exact"},
+                                            ],
+                                            value="latest",
+                                            labelStyle={"display": "block", "margin": "3px 0", "fontSize": "12px"},
+                                        ),
+                                    ),
+                                    _SPACER,
+                                    control_group(
+                                        "Focus — focus country",
+                                        "Or click a country point in Section 1 to set focus interactively.",
+                                        dcc.Dropdown(
+                                            id="focus_country",
+                                            options=[{"label": c, "value": c} for c in COUNTRIES],
+                                            value=DEFAULT_FOCUS_COUNTRY,
+                                            clearable=False,
+                                        ),
+                                    ),
                                 ]),
                             ],
                         ),
                     ],
                 ),
+
+                # KPI cards
                 html.Div(
                     id="kpi_cards",
-                    style={"display": "grid", "gridTemplateColumns": "1fr 1fr", "gap": "12px"},
+                    className="kpi-grid",
+                    style={
+                        "display": "grid",
+                        "gridTemplateColumns": "1fr 1fr",
+                        "gap": "10px",
+                        "alignContent": "start",
+                    },
                 ),
             ],
         ),
 
+        # ── Section 1: Explore Associations ──────────────────────────────────
+        section_header(
+            "1",
+            "Explore Associations",
+            "How does tourism dependence relate to sector employment and development outcomes? "
+            "Click a country point to set it as the focus country.",
+        ),
         html.Div(
-            style={"display": "grid", "gridTemplateColumns": "1fr 1fr", "gap": "16px"},
+            className="chart-grid-2",
+            style={"display": "grid", "gridTemplateColumns": "1fr 1fr", "gap": "14px", "marginBottom": "14px"},
             children=[
-                html.Div(dcc.Graph(id="tourism_sector_scatter", config={"displayModeBar": False}), style=CARD_STYLE),
-                html.Div(dcc.Graph(id="tourism_outcome_scatter", config={"displayModeBar": False}), style=CARD_STYLE),
+                chart_card(
+                    "tourism_sector_scatter",
+                    "Tourism dependence vs. sector employment",
+                    "Task: discover association, identify outliers. "
+                    "Point size = GDP per capita; color = region.",
+                    hint="Click a country point to set it as the focus country (highlighted with a red ring in all views).",
+                ),
+                chart_card(
+                    "tourism_outcome_scatter",
+                    "Tourism dependence vs. development outcome",
+                    "Task: discover association between tourism intensity and the selected outcome. "
+                    "Point size = services employment share; color = region.",
+                    hint="Focus country (set in left chart) is also highlighted here with a red ring.",
+                ),
             ],
         ),
 
+        # ── Section 2: Compare Structural Composition ─────────────────────────
+        section_header(
+            "2",
+            "Compare Structural Composition",
+            "Where do countries sit in the employment triangle, "
+            "and how much has the composition shifted over time?",
+        ),
         html.Div(
-            style={"display": "grid", "gridTemplateColumns": "1fr 1fr", "gap": "16px", "marginTop": "16px"},
+            style={"display": "grid", "gridTemplateColumns": "1fr 1fr", "gap": "14px", "marginBottom": "14px"},
             children=[
-                html.Div(dcc.Graph(id="trajectory_triangle", config={"displayModeBar": False}), style=CARD_STYLE),
-                html.Div(dcc.Graph(id="composition_triangle", config={"displayModeBar": False}), style=CARD_STYLE),
+                chart_card(
+                    "composition_triangle",
+                    "Employment composition landscape (snapshot)",
+                    "Task: summarize and compare sector composition. "
+                    "Point size = tourism receipts share. Focus country highlighted in red.",
+                    hint="Each vertex = 100% share in that sector. "
+                    "Use the mode bar (top-right) to zoom in or reset view.",
+                    graph_config=_TERNARY_CONFIG,
+                ),
+                chart_card(
+                    "structural_shift",
+                    "Structural shift scoreboard",
+                    "Task: compare direction and magnitude of employment change "
+                    "from each country's first to latest available year.",
+                    hint="Positive = sector share grew. Countries sorted by services change (ascending).",
+                ),
             ],
         ),
 
+        # ── Section 3: Follow One Country ────────────────────────────────────
+        section_header(
+            "3",
+            "Follow One Country",
+            "Trace the focus country's employment-composition pathway over all available years.",
+        ),
         html.Div(
-            style={"display": "grid", "gridTemplateColumns": "1fr 1fr", "gap": "16px", "marginTop": "16px"},
+            style={"display": "grid", "gridTemplateColumns": "2fr 1fr", "gap": "14px", "marginBottom": "14px"},
             children=[
-                html.Div(dcc.Graph(id="structural_shift", config={"displayModeBar": False}), style=CARD_STYLE),
-                html.Div(dcc.Graph(id="coverage_matrix", config={"displayModeBar": False}), style=CARD_STYLE),
+                chart_card(
+                    "trajectory_triangle",
+                    "Focus-country employment trajectory",
+                    "Task: explore temporal change in sector composition. "
+                    "Color = year (Viridis: dark purple = earliest, bright yellow = latest). "
+                    "Point size = tourism receipts share.",
+                    hint="Use the mode bar (top-right) to zoom in or reset view. "
+                    "Switch country via the Focus control above, or click a point in Section 1.",
+                    graph_config=_TERNARY_CONFIG,
+                ),
+                html.Div(
+                    style={
+                        **CARD_STYLE,
+                        "display": "flex",
+                        "flexDirection": "column",
+                        "justifyContent": "center",
+                        "gap": "12px",
+                    },
+                    children=[
+                        html.Div(
+                            "Active focus country",
+                            style={
+                                "fontSize": "10px",
+                                "fontWeight": 700,
+                                "color": THEME["muted"],
+                                "textTransform": "uppercase",
+                                "letterSpacing": "0.1em",
+                            },
+                        ),
+                        html.Div(
+                            id="focus_country_badge",
+                            style={"fontSize": "22px", "fontWeight": 800, "color": THEME["accent"]},
+                            children=DEFAULT_FOCUS_COUNTRY,
+                        ),
+                        html.Hr(
+                            style={
+                                "border": "none",
+                                "borderTop": f"1px solid {THEME['border']}",
+                                "margin": "0",
+                            }
+                        ),
+                        html.Div(
+                            style={"fontSize": "12px", "color": THEME["muted"], "lineHeight": "1.65"},
+                            children=[
+                                html.Div(
+                                    "The trajectory chart shows every year with complete "
+                                    "employment-composition data for this country."
+                                ),
+                                html.Div(
+                                    "Point size encodes tourism receipts share — larger = higher dependence.",
+                                    style={"marginTop": "6px"},
+                                ),
+                                html.Div(
+                                    "Start and Latest year are labelled in the chart.",
+                                    style={"marginTop": "6px"},
+                                ),
+                            ],
+                        ),
+                    ],
+                ),
             ],
         ),
 
+        # ── Section 4: Check Data Reliability ────────────────────────────────
+        section_header(
+            "4",
+            "Check Data Reliability",
+            "Inspect data coverage before trusting a comparison. "
+            "Gaps are explicit — not imputed in this view.",
+        ),
         html.Div(
-            style={"fontSize": "12px", "color": "#94A3B8", "marginTop": "16px", "paddingBottom": "8px"},
-            children=(
-                "Methodological note: the dashboard supports exploratory analysis. It visualizes associations and structural patterns, "
-                "not causal proof that tourism directly causes sectoral decline, poverty, or inequality."
-            ),
+            style={"marginBottom": "14px"},
+            children=[
+                chart_card(
+                    "coverage_matrix",
+                    "Data coverage matrix",
+                    "Task: inspect missingness across indicators and countries. "
+                    "Cell = % of years with non-missing data.",
+                    extra_footer=html.Div(
+                        style={
+                            "display": "flex",
+                            "gap": "14px",
+                            "marginTop": "8px",
+                            "fontSize": "11px",
+                            "color": THEME["muted"],
+                            "flexWrap": "wrap",
+                        },
+                        children=[
+                            html.Span([html.Span("■ ", style={"color": "#EF4444", "fontWeight": 700}), "0% — no data"]),
+                            html.Span([html.Span("■ ", style={"color": "#F97316", "fontWeight": 700}), "< 40% — sparse"]),
+                            html.Span([html.Span("■ ", style={"color": "#EAB308", "fontWeight": 700}), "40–80% — partial"]),
+                            html.Span([html.Span("■ ", style={"color": "#22C55E", "fontWeight": 700}), "≥ 80% — good"]),
+                        ],
+                    ),
+                ),
+            ],
+        ),
+
+        # ── Methodological note ───────────────────────────────────────────────
+        html.Div(
+            style={
+                "background": "rgba(217,119,6,0.12)",
+                "border": "1px solid rgba(217,119,6,0.30)",
+                "borderRadius": "8px",
+                "padding": "12px 16px",
+                "fontSize": "12px",
+                "color": "#FCD34D",
+                "marginBottom": "8px",
+                "lineHeight": "1.6",
+            },
+            children=[
+                html.Strong("Methodological note: ", style={"color": "#FDE68A"}),
+                "This dashboard supports exploratory visual analysis only. "
+                "It shows associations and structural patterns in WDI data — "
+                "not causal evidence that tourism directly causes sectoral shifts, "
+                "poverty reduction, or inequality changes. "
+                "Interpretations should account for confounders, country context, "
+                "and the data coverage shown in Section 4.",
+            ],
         ),
     ],
 )
@@ -876,6 +1441,7 @@ def update_focus_country_from_click(click_data, current_value):
     Output("structural_shift", "figure"),
     Output("coverage_matrix", "figure"),
     Output("kpi_cards", "children"),
+    Output("focus_country_badge", "children"),
     Input("countries", "value"),
     Input("year", "value"),
     Input("mode", "value"),
@@ -890,44 +1456,27 @@ def update_dashboard(countries, year, mode, sector_var, outcome_var, focus_count
     snap = get_snapshot(df, year, countries, mode)
     selected_df = df[df["Country Name"].isin(countries)].copy()
 
-    # KPI cards
     available_tourism = snap["tourism_receipts_pct_exports"].notna().sum() if "tourism_receipts_pct_exports" in snap else 0
     avg_services = snap["services_avg"].mean() if "services_avg" in snap else np.nan
-    avg_tourism = snap["tourism_receipts_pct_exports"].mean() if "tourism_receipts_pct_exports" in snap else np.nan
     focus_latest = latest_year_for_country("tourism_receipts_pct_exports", focus_country)
 
-    kpis = [
-        ("Countries", f"{len(countries)}", "active comparison set"),
+    kpi_data = [
+        ("Countries", f"{len(countries)}", "in active comparison set"),
         ("Tourism data", f"{available_tourism}/{len(countries)}", "countries with values"),
-        ("Avg. services share", "n/a" if pd.isna(avg_services) else f"{avg_services:.1f}%", "selected snapshot"),
-        ("Focus tourism year", focus_latest, focus_country),
+        ("Avg. services share", "n/a" if pd.isna(avg_services) else f"{avg_services:.1f}%", "snapshot average"),
+        ("Focus tourism year", focus_latest, f"latest data for {focus_country}"),
     ]
-    kpi_children = [
-        html.Div(
-            style={
-                "background": "linear-gradient(135deg, rgba(249,115,22,0.16), rgba(34,211,238,0.10))",
-                "border": "1px solid rgba(148,163,184,0.25)",
-                "borderRadius": "18px",
-                "padding": "14px",
-                "minHeight": "84px",
-            },
-            children=[
-                html.Div(label, style={"fontSize": "12px", "color": "#CBD5E1"}),
-                html.Div(value, style={"fontSize": "26px", "fontWeight": 800, "margin": "3px 0", "color": "#F8FAFC"}),
-                html.Div(sub, style={"fontSize": "11px", "color": "#94A3B8"}),
-            ],
-        )
-        for label, value, sub in kpis
-    ]
+    kpi_children = [kpi_card(label, value, sub) for label, value, sub in kpi_data]
 
     return (
-        fig_tourism_vs_sector(snap, sector_var),
-        fig_tourism_vs_outcome(snap, outcome_var),
+        fig_tourism_vs_sector(snap, sector_var, focus_country),
+        fig_tourism_vs_outcome(snap, outcome_var, focus_country),
         fig_country_trajectory_triangle(focus_country),
-        fig_composition_triangle(snap),
+        fig_composition_triangle(snap, focus_country),
         fig_shift_dotplot(selected_df, countries),
         fig_coverage_matrix(selected_df, countries),
         kpi_children,
+        focus_country,
     )
 
 

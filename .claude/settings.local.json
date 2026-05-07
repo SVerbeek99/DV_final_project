@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls \"c:\\\\Users\\\\Steven\\\\Documents\\\\DSBE\\\\Data Visualizations\\\\Project\\\\\")",
+      "Read(//c/Users/Steven/Documents/DSBE/Data Visualizations/**)"
+    ]
+  }
+}

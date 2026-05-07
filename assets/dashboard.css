@@ -399,3 +399,20 @@ input[type="radio"] + label {
     background-color: #334155 !important;
     border: 1px solid #475569 !important;
 }
+
+/* Year direct-input box (right side of Time slider) */
+.dash-input-container.dash-range-slider-input {
+    background-color: #1E293B !important;
+    color: #E2E8F0 !important;
+    border: 1px solid rgba(148, 163, 184, 0.35) !important;
+    border-radius: 6px !important;
+}
+
+.dash-input-container.dash-range-slider-input:focus {
+    outline: 1px solid rgba(96, 165, 250, 0.55) !important;
+    border-color: rgba(96, 165, 250, 0.65) !important;
+}
+
+.dash-input-container.dash-range-slider-input::placeholder {
+    color: #94A3B8 !important;
+}

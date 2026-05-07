@@ -125,3 +125,21 @@ Human verification to complete:
 - [ ] Launch dashboard and confirm control text is readable in Scope/Encoding/Focus dropdowns
 - [ ] Confirm Data mode radio labels are readable
 - [ ] Confirm slider year labels/track/thumb remain readable and consistent with dark theme
+
+---
+
+## 2026-05-07 - Codex (GPT-5) slider year input readability fix
+
+Prompt summary:
+Fix unreadable text in the "Time — comparison year" direct-input text box in dashboard controls.
+
+AI output summary:
+- Updated `assets/dashboard.css` with targeted styles for `.dash-input-container.dash-range-slider-input`.
+- Set dark background, light text color, visible border, and focus outline so the year input text is readable.
+
+Files changed:
+- assets/dashboard.css
+
+Human verification to complete:
+- [ ] Open dashboard and confirm the year text in the right-side Time input is readable
+- [ ] Confirm focus state border/outline is visible when clicking into the year input
