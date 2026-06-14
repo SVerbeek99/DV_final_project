@@ -277,3 +277,61 @@ Files changed:
 Human verification to complete:
 - [ ] Inspect the final PDF at normal reading zoom before submission.
 - [ ] Confirm the dashboard overview screenshot is the desired crop/state.
+
+---
+
+## 2026-06-14 - Codex (GPT-5) LaTeX float-layout cleanup
+
+Prompt summary:
+Clean up report float layout without changing the VGTC template: remove extra FloatBarriers, relocate the data abstraction table, relax float specifiers, add conservative float spacing, compile, and report layout warnings and figure movement.
+
+AI output summary:
+- Moved the data abstraction table environment immediately after `\section{Data and Task Abstraction}`.
+- Removed all extra `\FloatBarrier` commands except the one before the use-case section.
+- Replaced aggressive figure float specifiers and added conservative float spacing lengths in the preamble.
+- Recompiled `report/main.pdf` and checked citations, references, overfull boxes, page count, and figure-reference page gaps.
+
+Files changed:
+- report/main.tex
+- report/main.pdf
+- AI_USAGE_LOG.md
+
+Human verification to complete:
+- [ ] Decide whether the later figure placement after barrier removal is acceptable for submission.
+
+---
+
+## 2026-06-14 - Codex (GPT-5) final page-6 layout tweak
+
+Prompt summary:
+Fix the awkward final layout where page 6 contained only the data coverage figure.
+
+AI output summary:
+- Removed the remaining `\FloatBarrier` before the use-case section so following text can share the page with the full-width data coverage figure.
+- Recompiled `report/main.pdf` and visually checked the final page layout.
+
+Files changed:
+- report/main.tex
+- report/main.pdf
+- AI_USAGE_LOG.md
+
+Human verification to complete:
+- [ ] Do one final visual read-through of `report/main.pdf` before submission.
+
+---
+
+## 2026-06-14 - Codex (GPT-5) small-multiple legend spacing fix
+
+Prompt summary:
+Fix the dashboard small-multiple association overview because the region legend overlaps the first graph.
+
+AI output summary:
+- Increased the small-multiple figure height and top margin.
+- Moved the region legend into the reserved top space so the panel title and points remain readable.
+
+Files changed:
+- tourism_structural_dashboard_designed.py
+- AI_USAGE_LOG.md
+
+Human verification to complete:
+- [ ] Open the dashboard and confirm the small-multiple legend no longer overlaps the first panel.

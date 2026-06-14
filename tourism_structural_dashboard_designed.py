@@ -761,8 +761,22 @@ def fig_small_multiple_associations(snap: pd.DataFrame) -> go.Figure:
         fig.update_xaxes(title_text="Tourism (%)", row=row, col=col)
         fig.update_yaxes(title_text="", row=row, col=col)
 
-    fig.update_layout(height=560)
-    fig = base_layout(fig, "Small-multiple overview: tourism compared with several outcomes")
+    fig = base_layout(fig)
+    fig.update_layout(
+        height=590,
+        margin=dict(l=48, r=20, t=84, b=44),
+        legend=dict(
+            bgcolor="rgba(15,23,42,0.85)",
+            bordercolor=THEME["border"],
+            borderwidth=1,
+            font=dict(size=11, color=THEME["text"]),
+            orientation="h",
+            yanchor="bottom",
+            y=1.12,
+            xanchor="left",
+            x=0,
+        ),
+    )
     fig.update_annotations(font=dict(size=11, color=THEME["text"]))
     return fig
 

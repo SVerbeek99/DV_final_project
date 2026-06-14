@@ -29,6 +29,12 @@
 \usepackage{amsmath}
 \usepackage{placeins}
 
+\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
+\setlength{\floatsep}{8pt plus 2pt minus 2pt}
+\setlength{\intextsep}{8pt plus 2pt minus 2pt}
+\setlength{\dbltextfloatsep}{8pt plus 2pt minus 2pt}
+\setlength{\dblfloatsep}{8pt plus 2pt minus 2pt}
+
 \onlineid{0}
 \vgtccategory{Research}
 \vgtcinsertpkg
@@ -66,33 +72,6 @@ The composition views are motivated by the fact that employment shares in agricu
 
 \section{Data and Task Abstraction}
 
-\subsection{Domain Data and Derived Attributes}
-
-The project uses World Development Indicators data~\cite{wdi}. The raw variables include international tourism receipts as a percentage of total exports, employment shares in services, industry, and agriculture, employment group variants for male and female workers, GDP per capita, urban population share, poverty headcount, Gini index, country, year, and a project-assigned region category.
-
-International tourism receipts as a percentage of total exports was selected as the main tourism-dependence indicator because it normalizes tourism revenue by a country's export structure. This is more comparable across countries of different absolute economic size than raw tourism receipts or visitor arrivals. Alternative tourism indicators, such as international arrivals or absolute receipts, capture tourism volume but not necessarily dependence. The limitation is that this single indicator does not capture domestic tourism or indirect tourism employment, so the dashboard supports exploratory comparison rather than a complete causal analysis.
-
-Several values are derived by the project rather than directly provided as raw WDI fields. Gender-average employment is computed as the arithmetic mean of the male and female employment shares for the same country, year, and sector:
-\[
-v_{avg}(c,y,s)=\frac{v_{male}(c,y,s)+v_{female}(c,y,s)}{2}.
-\]
-For country $c$, year $y$, and attribute $a$, the latest-available value is the most recent non-missing value at or before $y$:
-\[
-v_{latest}(c,y,a)=v(c,t,a), \quad t=\max\{t' \leq y \mid v(c,t',a) \textrm{ is available}\}.
-\]
-Data coverage is the share of selected years with non-missing values for a country and indicator:
-\[
-coverage(c,a)=\frac{|\{y \mid v(c,y,a) \textrm{ is available}\}|}{|\{y \mid y \textrm{ is in the selected range}\}|}.
-\]
-Structural employment shift is the latest available employment share minus the earliest available employment share:
-\[
-shift(c,s)=v(c,y_{last},s)-v(c,y_{first},s).
-\]
-
-\subsection{Data Abstraction}
-
-The dataset is a static multidimensional table. The main item is a country--year observation indexed by country and year. Countries are treated as categorical items, not as spatial geometry, because the current tasks prioritize attribute comparison and trajectories over geographic adjacency.
-
 \begin{table*}[t]
     \centering
     \caption{Data abstraction of the main attributes used in the dashboard.}
@@ -105,7 +84,7 @@ The dataset is a static multidimensional table. The main item is a country--year
         \textbf{Attribute} & \textbf{Role} & \textbf{Abstract type} \\
         \midrule
         Country & Item identifier and part of composite key & Categorical key \\
-        Year & Temporal index and part of composite key & Ordered key \\
+        Year & Temporal index and part of composite key & Quantitative sequential key \\
         Region & Grouping attribute & Categorical attribute \\
         Tourism receipts as \% of exports & Tourism-dependence value & Quantitative sequential attribute \\
         Employment in services, industry, agriculture & Three-sector employment composition & Quantitative part-to-whole composition \\
@@ -117,6 +96,38 @@ The dataset is a static multidimensional table. The main item is a country--year
         \bottomrule
     \end{tabular}
 \end{table*}
+
+\subsection{Domain Data and Derived Attributes}
+
+The project uses World Development Indicators data~\cite{wdi}. The raw variables include international tourism receipts as a percentage of total exports, employment shares in services, industry, and agriculture, employment group variants for male and female workers, GDP per capita, urban population share, poverty headcount, Gini index, country, year, and a project-assigned region category.
+
+International tourism receipts as a percentage of total exports was selected as the main tourism-dependence indicator because it normalizes tourism revenue by a country's export structure. This is more comparable across countries of different absolute economic size than raw tourism receipts or visitor arrivals. Alternative tourism indicators, such as international arrivals or absolute receipts, capture tourism volume but not necessarily dependence. The limitation is that this single indicator does not capture domestic tourism or indirect tourism employment, so the dashboard supports exploratory comparison rather than a complete causal analysis.
+
+Several values are derived by the project rather than directly provided as raw WDI fields. Gender-average employment is computed as the arithmetic mean of the male and female employment shares for the same country, year, and sector:
+\[
+v_{\mathrm{avg}}(c,y,s) =
+\frac{v_{\mathrm{male}}(c,y,s) + v_{\mathrm{female}}(c,y,s)}{2}.
+\]
+
+\[
+v_{\mathrm{latest}}(c,y,a) = v(c,t,a), \quad
+t = \max \{t' \leq y \mid v(c,t',a) \text{ is available}\}.
+\]
+Data coverage is the share of selected years with non-missing values for a country and indicator:
+\[
+coverage(c,a) =
+\frac{|\{y \mid v(c,y,a) \text{ is available}\}|}
+{|\{y \mid y \text{ is in the selected range}\}|}.
+\]
+
+\[
+shift(c,s) =
+v(c,y_{\mathrm{last}},s) - v(c,y_{\mathrm{first}},s).
+\]
+
+\subsection{Data Abstraction}
+
+The dataset is a static multidimensional table. The main item is a country--year observation indexed by country and year. Countries are treated as categorical items, not as spatial geometry, because the current tasks prioritize attribute comparison and trajectories over geographic adjacency.
 
 \subsection{Domain Tasks}
 
@@ -168,18 +179,16 @@ The task abstraction translates each domain task into one Munzner-style action--
     \end{tabular}
 \end{table}
 
-\FloatBarrier
 \section{Final Design: Tourism Structural Explorer}
 
 The final dashboard layout is shown in~\autoref{fig:dashboard-overview}.
 
-\begin{figure*}[!t]
+\begin{figure*}[t]
     \centering
     \includegraphics[width=\textwidth]{fig_dashboard_overview.png}
     \caption{Overview of the \emph{Tourism Structural Explorer}. The dashboard combines global controls, association views, a small-multiple overview, ternary composition views, a structural-shift summary, and data-coverage inspection.}
     \label{fig:dashboard-overview}
 \end{figure*}
-\FloatBarrier
 
 \subsection{Association Views}
 
@@ -187,20 +196,19 @@ The two main association scatterplots, shown in~\autoref{fig:association-views},
 
 The small-multiple association overview in~\autoref{fig:small-multiples} addresses the feedback that users otherwise have to remember one tourism-variable relationship while changing dropdowns. Each panel uses tourism receipts on the horizontal axis and a different employment or development variable on the vertical axis. Constant-size marks and shared region hue keep the encoding consistent across panels. The view supports T1 and T2 by making multiple relationships comparable side by side.
 
-\begin{figure*}[!t]
+\begin{figure*}[t]
     \centering
     \includegraphics[width=\textwidth]{fig_association_views.png}
     \caption{Association views for cross-country comparison. Each point represents a country, position encodes tourism dependence and the selected outcome, hue encodes region, and marker size is constant.}
     \label{fig:association-views}
 \end{figure*}
 
-\begin{figure*}[!t]
+\begin{figure*}[t]
     \centering
     \includegraphics[width=\textwidth]{fig_small_multiples.png}
     \caption{Small-multiple association overview. Each panel compares tourism dependence with a different employment or development attribute using the selected countries, selected year, and data mode.}
     \label{fig:small-multiples}
 \end{figure*}
-\FloatBarrier
 
 \subsection{Composition and Pathway Views}
 
@@ -208,14 +216,13 @@ The ternary views show employment composition, not tourism directly. Services, i
 
 Ternary plots are less familiar and less precise than Cartesian plots, so the dashboard provides hover values and a structural-shift companion view. Alternatives include separate line charts, which make individual sector trends easier to read but do not show the part-to-whole balance, and streamgraphs or stacked areas, which can imply accumulated totals and become hard to compare precisely.
 
-\begin{figure}[!t]
+\begin{figure}[tbp]
     \centering
     \includegraphics[width=\linewidth]{fig_ternary_morocco.png}
     \caption{Employment-composition trajectory for Morocco. Each point represents a country--year observation positioned by services, industry, and agriculture shares.}
     \label{fig:ternary-morocco}
 \end{figure}
 % Manual verification needed: export final Morocco trajectory figure and verify it matches Use Case 1.
-\FloatBarrier
 
 \subsection{Structural Shift and Data Coverage}
 
@@ -223,20 +230,19 @@ The structural-shift dotplot in~\autoref{fig:structural-shift} summarizes first-
 
 The data coverage matrix in~\autoref{fig:data-coverage} supports S1 rather than serving as a core analytical outcome. It uses the selected countries and prioritizes the currently selected sector and outcome alongside the core indicators. Rows represent indicators, columns represent countries, and color encodes coverage percentage. This helps users decide whether an apparent tourism-development pattern should be interpreted cautiously.
 
-\begin{figure}[!t]
+\begin{figure}[tbp]
     \centering
     \includegraphics[width=\linewidth]{fig_structural_shift.png}
     \caption{Structural employment shift by country and sector. Each mark shows the percentage-point change between earliest and latest available observations.}
     \label{fig:structural-shift}
 \end{figure}
 
-\begin{figure*}[!t]
+\begin{figure*}[t]
     \centering
     \includegraphics[width=\textwidth]{fig_data_coverage.png}
     \caption{Data coverage matrix for the selected countries and indicators. Rows represent indicators, columns represent countries, and color encodes the percentage of years with available observations.}
     \label{fig:data-coverage}
 \end{figure*}
-\FloatBarrier
 
 \subsection{Interaction and Coordinated Views}
 
@@ -251,6 +257,8 @@ The trend lines in the scatterplots are exploratory summaries only. They help us
 \section{Use Cases and Evaluation}
 
 The system is evaluated through task-based use cases rather than a formal user study. Each use case starts from a domain question and records the interaction path that supports the analysis.
+
+Both use cases use the same comparison state: Spain, Thailand, Morocco, Dominican Republic, Mexico, South Africa, Indonesia, Croatia, and Colombia; the comparison year is 2020 and the data mode is latest available up to the selected year.
 
 \subsection{Use Case 1: Tourism Dependence and Employment Pathway}
 
@@ -282,7 +290,8 @@ The system is evaluated through task-based use cases rather than a formal user s
 
 \section{Implementation and Reproducibility}
 
-The dashboard is implemented in Python using Dash~\cite{dash}, Plotly~\cite{plotly}, pandas~\cite{pandas}, and NumPy~\cite{numpy}. The standard entry point is \texttt{python app/tourism\_structural\_dashboard\_designed.py}; the root-level script remains the main implementation. The app expects \texttt{employmentdata.csv} and \texttt{tourism15indicators.csv} in the repository root. Full setup commands are documented in \texttt{README.md}.
+The dashboard is implemented in Python using Dash~\cite{dash}, Plotly~\cite{plotly}, pandas~\cite{pandas}, and NumPy~\cite{numpy}. The standard entry point is \texttt{python app/tourism\_structural\_dashboard\_designed.py}; the root-level script remains the main implementation. The app expects \texttt{employmentdata.csv} and \texttt{tourism15indicators.csv} in the repository root. Full setup commands are documented in \texttt{README.md}. A fresh local run was verified on 13 June 2026 using Python~X.Y with the commands listed in the repository README.
+
 % Manual verification needed: run the app from a fresh environment and record final verification.
 
 \section{Changes after Interim Feedback}
