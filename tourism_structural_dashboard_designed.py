@@ -23,6 +23,7 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 from dash import Dash, Input, Output, State, dcc, html
 
 
@@ -147,6 +148,16 @@ OUTCOME_OPTIONS = [
     {"label": "GINI index", "value": "gini_index"},
     {"label": "GDP per capita", "value": "gdp_per_capita_current_usd"},
     {"label": "Urban population", "value": "urban_population_pct"},
+]
+
+SMALL_MULTIPLE_VARS = [
+    "services_avg",
+    "industry_avg",
+    "agriculture_avg",
+    "gdp_per_capita_current_usd",
+    "urban_population_pct",
+    "poverty_headcount_pct",
+    "gini_index",
 ]
 
 
@@ -392,13 +403,6 @@ def add_regression_line(fig: go.Figure, plot_df: pd.DataFrame, x: str, y: str) -
     return fig
 
 
-def normalize_marker_size(series: pd.Series, min_size: float = 8, max_size: float = 28) -> pd.Series:
-    s = pd.to_numeric(series, errors="coerce")
-    if s.notna().sum() == 0 or s.max() == s.min():
-        return pd.Series(min_size + 4, index=s.index)
-    return min_size + (s - s.min()) * (max_size - min_size) / (s.max() - s.min())
-
-
 def latest_year_for_country(var: str, country: str) -> str:
     sub = df[df["Country Name"] == country][["year", var]].dropna()
     if sub.empty:
@@ -546,6 +550,9 @@ def _ternary_axes() -> dict:
     return dict(
         gridcolor=THEME["grid"],
         linecolor=THEME["border"],
+        tick0=0,
+        dtick=20,
+        ticksuffix="%",
         tickfont=dict(size=10, color=THEME["muted"]),
         title_font=dict(size=12, color=THEME["text"]),
     )
@@ -557,9 +564,9 @@ def _ternary_layout(fig: go.Figure) -> go.Figure:
         ternary=dict(
             bgcolor=THEME["card"],
             sum=100,
-            aaxis=dict(title="Services", **ax),
-            baxis=dict(title="Industry", **ax),
-            caxis=dict(title="Agriculture", **ax),
+            aaxis=dict(title="Services (%)", **ax),
+            baxis=dict(title="Industry (%)", **ax),
+            caxis=dict(title="Agriculture (%)", **ax),
         ),
         paper_bgcolor=THEME["card"],
         font=dict(color=THEME["text"], family="Inter, Segoe UI, Arial, sans-serif"),
@@ -627,9 +634,8 @@ def fig_tourism_vs_sector(snap: pd.DataFrame, sector_var: str, focus_country: st
         x="tourism_receipts_pct_exports",
         y=sector_var,
         color="region",
-        size="gdp_per_capita_current_usd",
         hover_name="Country Name",
-        custom_data=["Country Name"],
+        custom_data=["Country Name", "gdp_per_capita_current_usd"],
         labels={
             "tourism_receipts_pct_exports": VAR_LABELS["tourism_receipts_pct_exports"],
             sector_var: VAR_LABELS.get(sector_var, sector_var),
@@ -637,14 +643,14 @@ def fig_tourism_vs_sector(snap: pd.DataFrame, sector_var: str, focus_country: st
             "gdp_per_capita_current_usd": VAR_LABELS["gdp_per_capita_current_usd"],
         },
         color_discrete_map=REGION_COLORS,
-        size_max=36,
     )
     fig.update_traces(
-        marker=dict(line=dict(color="rgba(255,255,255,0.35)", width=1), opacity=0.88),
+        marker=dict(size=10, line=dict(color="rgba(255,255,255,0.35)", width=1), opacity=0.88),
         hovertemplate=(
             "<b>%{hovertext}</b><br>"
             "Tourism receipts: %{x:.2f}%<br>"
             f"{VAR_LABELS.get(sector_var, sector_var)}: %{{y:.2f}}%<br>"
+            "GDP per capita: $%{customdata[1]:,.0f}<br>"
             "<extra></extra>"
         ),
         selector=dict(mode="markers"),
@@ -664,9 +670,8 @@ def fig_tourism_vs_outcome(snap: pd.DataFrame, outcome_var: str, focus_country: 
         x="tourism_receipts_pct_exports",
         y=outcome_var,
         color="region",
-        size="services_avg",
         hover_name="Country Name",
-        custom_data=["Country Name"],
+        custom_data=["Country Name", "services_avg"],
         labels={
             "tourism_receipts_pct_exports": VAR_LABELS["tourism_receipts_pct_exports"],
             outcome_var: VAR_LABELS.get(outcome_var, outcome_var),
@@ -674,14 +679,14 @@ def fig_tourism_vs_outcome(snap: pd.DataFrame, outcome_var: str, focus_country: 
             "region": "Region",
         },
         color_discrete_map=REGION_COLORS,
-        size_max=36,
     )
     fig.update_traces(
-        marker=dict(line=dict(color="rgba(255,255,255,0.35)", width=1), opacity=0.88),
+        marker=dict(size=10, line=dict(color="rgba(255,255,255,0.35)", width=1), opacity=0.88),
         hovertemplate=(
             "<b>%{hovertext}</b><br>"
             "Tourism receipts: %{x:.2f}%<br>"
             f"{VAR_LABELS.get(outcome_var, outcome_var)}: %{{y:.2f}}<br>"
+            "Services employment: %{customdata[1]:.2f}%<br>"
             "<extra></extra>"
         ),
         selector=dict(mode="markers"),
@@ -691,16 +696,82 @@ def fig_tourism_vs_outcome(snap: pd.DataFrame, outcome_var: str, focus_country: 
     return base_layout(fig)
 
 
+def fig_small_multiple_associations(snap: pd.DataFrame) -> go.Figure:
+    rows = []
+    for var in SMALL_MULTIPLE_VARS:
+        if var not in snap.columns:
+            continue
+        sub = snap.dropna(subset=["tourism_receipts_pct_exports", var])
+        for _, r in sub.iterrows():
+            rows.append(
+                {
+                    "Country Name": r["Country Name"],
+                    "region": r["region"],
+                    "Variable": VAR_LABELS.get(var, var),
+                    "Value": r[var],
+                    "Tourism": r["tourism_receipts_pct_exports"],
+                }
+            )
+
+    plot_df = pd.DataFrame(rows)
+    if plot_df.empty:
+        return empty_figure("No data available for the small-multiple overview.")
+
+    variables = plot_df["Variable"].drop_duplicates().tolist()
+    cols = 3
+    rows_count = int(np.ceil(len(variables) / cols))
+    fig = make_subplots(
+        rows=rows_count,
+        cols=cols,
+        subplot_titles=variables,
+        horizontal_spacing=0.07,
+        vertical_spacing=0.14,
+    )
+
+    for index, variable in enumerate(variables):
+        row = index // cols + 1
+        col = index % cols + 1
+        panel = plot_df[plot_df["Variable"] == variable]
+        for region, rdf in panel.groupby("region"):
+            fig.add_trace(
+                go.Scatter(
+                    x=rdf["Tourism"],
+                    y=rdf["Value"],
+                    mode="markers",
+                    name=region,
+                    legendgroup=region,
+                    showlegend=index == 0,
+                    marker=dict(
+                        size=7,
+                        color=REGION_COLORS.get(region, REGION_COLORS["Other"]),
+                        line=dict(color="rgba(255,255,255,0.25)", width=0.8),
+                        opacity=0.86,
+                    ),
+                    text=rdf["Country Name"],
+                    customdata=np.stack([rdf["Variable"]], axis=-1),
+                    hovertemplate=(
+                        "<b>%{text}</b><br>"
+                        "%{customdata[0]}: %{y:.2f}<br>"
+                        "Tourism receipts: %{x:.2f}%<extra></extra>"
+                    ),
+                ),
+                row=row,
+                col=col,
+            )
+        fig.update_xaxes(title_text="Tourism (%)", row=row, col=col)
+        fig.update_yaxes(title_text="", row=row, col=col)
+
+    fig.update_layout(height=560)
+    fig = base_layout(fig, "Small-multiple overview: tourism compared with several outcomes")
+    fig.update_annotations(font=dict(size=11, color=THEME["text"]))
+    return fig
+
+
 def fig_country_trajectory_triangle(country: str) -> go.Figure:
     cdf = df[df["Country Name"] == country].copy().sort_values("year")
     cdf = cdf.dropna(subset=["services_avg", "industry_avg", "agriculture_avg"])
     if cdf.empty:
         return empty_figure("No employment-composition data available for this country.")
-
-    marker_size = normalize_marker_size(
-        cdf.get("tourism_receipts_pct_exports", pd.Series(index=cdf.index)), 8, 22
-    )
-    marker_size = marker_size.fillna(10)
 
     hover = []
     for _, r in cdf.iterrows():
@@ -735,7 +806,7 @@ def fig_country_trajectory_triangle(country: str) -> go.Figure:
             hovertemplate="%{text}<extra></extra>",
             line=dict(color="#475569", width=1.8),
             marker=dict(
-                size=marker_size,
+                size=10,
                 color=cdf["year"],
                 # Viridis: perceptually ordered sequential — dark purple = earliest, bright yellow = latest
                 colorscale="Viridis",
@@ -783,11 +854,6 @@ def fig_composition_triangle(snap: pd.DataFrame, focus_country: str) -> go.Figur
     if plot_df.empty:
         return empty_figure("No sector-composition data available for selected countries.")
 
-    marker_size = normalize_marker_size(
-        plot_df.get("tourism_receipts_pct_exports", pd.Series(index=plot_df.index)), 9, 26
-    )
-    marker_size = marker_size.fillna(11)
-
     hover = []
     for _, r in plot_df.iterrows():
         tourism_text = (
@@ -824,7 +890,7 @@ def fig_composition_triangle(snap: pd.DataFrame, focus_country: str) -> go.Figur
                 hovertext=[hover[plot_df.index.get_loc(i)] for i in idx],
                 hovertemplate="%{hovertext}<extra></extra>",
                 marker=dict(
-                    size=marker_size.loc[idx],
+                    size=11,
                     color=REGION_COLORS.get(region, REGION_COLORS["Other"]),
                     line=dict(color="rgba(255,255,255,0.3)", width=1),
                     opacity=0.88,
@@ -837,7 +903,6 @@ def fig_composition_triangle(snap: pd.DataFrame, focus_country: str) -> go.Figur
     fc_row = plot_df[plot_df["Country Name"] == focus_country]
     if not fc_row.empty:
         r = fc_row.iloc[0]
-        fc_idx = fc_row.index[0]
         fc_tourism = (
             "n/a"
             if pd.isna(r.get("tourism_receipts_pct_exports", np.nan))
@@ -863,7 +928,7 @@ def fig_composition_triangle(snap: pd.DataFrame, focus_country: str) -> go.Figur
                 hovertext=[fc_hover],
                 hovertemplate="%{hovertext}<extra></extra>",
                 marker=dict(
-                    size=[marker_size.loc[fc_idx] + 6],
+                    size=17,
                     color=REGION_COLORS.get(r["region"], REGION_COLORS["Other"]),
                     line=dict(color="#EF4444", width=2.5),
                     opacity=1.0,
@@ -937,9 +1002,16 @@ def fig_shift_dotplot(df_selected: pd.DataFrame, countries: List[str]) -> go.Fig
     return base_layout(fig)
 
 
-def fig_coverage_matrix(df_selected: pd.DataFrame, countries: List[str]) -> go.Figure:
+def fig_coverage_matrix(
+    df_selected: pd.DataFrame,
+    countries: List[str],
+    sector_var: str | None = None,
+    outcome_var: str | None = None,
+) -> go.Figure:
     variables = [
         "tourism_receipts_pct_exports",
+        sector_var,
+        outcome_var,
         "services_avg",
         "industry_avg",
         "agriculture_avg",
@@ -948,6 +1020,7 @@ def fig_coverage_matrix(df_selected: pd.DataFrame, countries: List[str]) -> go.F
         "poverty_headcount_pct",
         "gini_index",
     ]
+    variables = [v for i, v in enumerate(variables) if v and v not in variables[:i]]
     rows = []
     for country in countries:
         cdf = df_selected[df_selected["Country Name"] == country]
@@ -1241,20 +1314,32 @@ app.layout = html.Div(
                     "tourism_sector_scatter",
                     "Tourism dependence vs. sector employment",
                     "Task: discover association, identify outliers. "
-                    "Point size = GDP per capita; color = region.",
+                    "Point position = quantitative values; color = region.",
                     hint="Click a country point to set it as the focus country (highlighted with a red ring in all views).",
                 ),
                 chart_card(
                     "tourism_outcome_scatter",
                     "Tourism dependence vs. development outcome",
                     "Task: discover association between tourism intensity and the selected outcome. "
-                    "Point size = services employment share; color = region.",
+                    "Point position = quantitative values; color = region.",
                     hint="Focus country (set in left chart) is also highlighted here with a red ring.",
                 ),
             ],
         ),
 
         # ── Section 2: Compare Structural Composition ─────────────────────────
+        html.Div(
+            style={"marginBottom": "14px"},
+            children=[
+                chart_card(
+                    "small_multiple_associations",
+                    "Small-multiple association overview",
+                    "Task: compare tourism relationships across several variables without relying on memory. "
+                    "Each panel uses constant-size points and region hue.",
+                    hint="Panels inherit the selected countries, year, and data mode from the controls above.",
+                ),
+            ],
+        ),
         section_header(
             "2",
             "Compare Structural Composition",
@@ -1268,7 +1353,7 @@ app.layout = html.Div(
                     "composition_triangle",
                     "Employment composition landscape (snapshot)",
                     "Task: summarize and compare sector composition. "
-                    "Point size = tourism receipts share. Focus country highlighted in red.",
+                    "Region hue groups countries; the focus country is highlighted in red.",
                     hint="Each vertex = 100% share in that sector. "
                     "Use the mode bar (top-right) to zoom in or reset view.",
                     graph_config=_TERNARY_CONFIG,
@@ -1297,7 +1382,7 @@ app.layout = html.Div(
                     "Focus-country employment trajectory",
                     "Task: explore temporal change in sector composition. "
                     "Color = year (Viridis: dark purple = earliest, bright yellow = latest). "
-                    "Point size = tourism receipts share.",
+                    "Tourism values are available in hover.",
                     hint="Use the mode bar (top-right) to zoom in or reset view. "
                     "Switch country via the Focus control above, or click a point in Section 1.",
                     graph_config=_TERNARY_CONFIG,
@@ -1341,7 +1426,7 @@ app.layout = html.Div(
                                     "employment-composition data for this country."
                                 ),
                                 html.Div(
-                                    "Point size encodes tourism receipts share — larger = higher dependence.",
+                                    "Tourism receipts are shown in hover so size does not imply another quantitative ranking.",
                                     style={"marginTop": "6px"},
                                 ),
                                 html.Div(
@@ -1436,6 +1521,7 @@ def update_focus_country_from_click(click_data, current_value):
 @app.callback(
     Output("tourism_sector_scatter", "figure"),
     Output("tourism_outcome_scatter", "figure"),
+    Output("small_multiple_associations", "figure"),
     Output("trajectory_triangle", "figure"),
     Output("composition_triangle", "figure"),
     Output("structural_shift", "figure"),
@@ -1471,10 +1557,11 @@ def update_dashboard(countries, year, mode, sector_var, outcome_var, focus_count
     return (
         fig_tourism_vs_sector(snap, sector_var, focus_country),
         fig_tourism_vs_outcome(snap, outcome_var, focus_country),
+        fig_small_multiple_associations(snap),
         fig_country_trajectory_triangle(focus_country),
         fig_composition_triangle(snap, focus_country),
         fig_shift_dotplot(selected_df, countries),
-        fig_coverage_matrix(selected_df, countries),
+        fig_coverage_matrix(selected_df, countries, sector_var, outcome_var),
         kpi_children,
         focus_country,
     )

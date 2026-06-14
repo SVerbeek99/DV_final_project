@@ -1,0 +1,98 @@
+\begin{thebibliography}{10}
+
+\bibitem{aitchison1986}
+J.~Aitchison.
+\newblock {\em The Statistical Analysis of Compositional Data}.
+\newblock Chapman and Hall, London, 1986.
+
+\bibitem{gapminder_tools}
+{Gapminder Foundation}.
+\newblock {Gapminder Tools}.
+\newblock \url{https://www.gapminder.org/tools/}.
+\newblock Accessed: 2026-06-13.
+
+\bibitem{munzner2014}
+T.~Munzner.
+\newblock {\em Visualization Analysis and Design}.
+\newblock CRC Press, Boca Raton, FL, 2014.
+
+\bibitem{numpy}
+{NumPy Developers}.
+\newblock {NumPy}.
+\newblock \url{https://numpy.org/}, 2025.
+
+\bibitem{owid}
+{Our World in Data}.
+\newblock {Our World in Data}.
+\newblock \url{https://ourworldindata.org/}.
+\newblock Accessed: 2026-06-13.
+
+\bibitem{dash}
+{Plotly Technologies Inc.}
+\newblock Dash.
+\newblock \url{https://dash.plotly.com/}, 2025.
+
+\bibitem{plotly}
+{Plotly Technologies Inc.}
+\newblock {Plotly Python Graphing Library}.
+\newblock \url{https://plotly.com/python/}, 2025.
+
+\bibitem{schoeley2021}
+J.~Sch{\"o}ley.
+\newblock The centered ternary balance scheme: A technique to visualize
+  surfaces of unbalanced three-part compositions.
+\newblock {\em Demographic Research}, 44(19), 2021. doi: {{%
+10\hspace{.1pt}\discretionary{.}{%
+}{.}\hspace{.4pt}4054\discretionary{/}{%
+}{/}DemRes\hspace{.1pt}\discretionary{.}{%
+}{.}\hspace{.4pt}2021\hspace{.1pt}\discretionary{.}{%
+}{.}\hspace{.4pt}44\hspace{.1pt}\discretionary{.}{%
+}{.}\hspace{.4pt}19}}
+
+
+\bibitem{shneiderman1996}
+B.~Shneiderman.
+\newblock The eyes have it: A task by data type taxonomy for information
+  visualizations.
+\newblock {\em Proceedings 1996 IEEE Symposium on Visual Languages}, pp.
+  336--343, 1996.
+
+\bibitem{pandas}
+{The pandas development team}.
+\newblock pandas: Python data analysis library.
+\newblock \url{https://pandas.pydata.org/}, 2025.
+
+\bibitem{untourism_dashboard}
+{UN Tourism}.
+\newblock {UN Tourism Data Dashboard}.
+\newblock
+  \url{https://www.unwto.org/tourism-data/un-tourism-tourism-dashboard}.
+\newblock Accessed: 2026-06-13.
+
+\bibitem{worldbank_databank}
+{World Bank}.
+\newblock {World Development Indicators | DataBank}.
+\newblock
+  \url{https://databank.worldbank.org/source/world-development-indicators}.
+\newblock Accessed: 2026-06-13.
+
+\bibitem{wdi}
+{World Bank}.
+\newblock {World Development Indicators}.
+\newblock \url{https://github.com/datasets/world-development-indicators}, 2025.
+\newblock Accessed: 2026-05-16.
+
+\bibitem{wttc_research}
+{World Travel \& Tourism Council}.
+\newblock {Travel \& Tourism Data and Research}.
+\newblock \url{https://wttc.org/research}.
+\newblock Accessed: 2026-06-13.
+
+\bibitem{yi2007}
+J.~S. Yi, Y.-A. Kang, J.~T. Stasko, and J.~A. Jacko.
+\newblock Toward a deeper understanding of the role of interaction in
+  information visualization.
+\newblock {\em IEEE Transactions on Visualization and Computer Graphics},
+  13(6):1224--1231, 2007.
+
+\end{thebibliography}

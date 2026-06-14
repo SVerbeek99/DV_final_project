@@ -1,59 +1,91 @@
-# Tourism and Structural Transformation Dashboard
+# Tourism Structural Explorer
 
-Interactive Dash application for exploring how tourism dependence relates to structural transformation in employment and selected development outcomes.
+Interactive Dash/Plotly dashboard for JM0250 Data Visualization. The project supports exploratory analysis of how international tourism dependence relates to employment-sector composition and selected development indicators across countries and years.
 
-## Course Context
-- Course: JM0250 Data Visualization
-- Project theme: Tourism and structural transformation
-- Approach: Exploratory visual analysis (not causal inference)
+The dashboard is for comparison, hypothesis generation, and data-quality awareness. It does not claim that tourism causes employment shifts or development outcomes.
 
-## What This Dashboard Explores
-- Tourism receipts as a share of exports
-- Employment composition across services, industry, and agriculture
-- Associations with GDP per capita, urbanization, poverty, and inequality
-- Country pathways over time and cross-country comparisons
+## What This Project Does
 
-## Repository Contents
-- `tourism_structural_dashboard_designed.py`: main Dash app
-- `tourism_structural_requirements.txt`: original dependency list
-- `requirements.txt`: standard dependency file for quick setup
-- `employmentdata.csv`: employment and value-added indicators
-- `tourism15indicators.csv`: tourism and development indicators
-- `tourism_structural_presentation_script.md`: presentation script
-- `AI_USAGE_LOG.md`: AI usage disclosure notes
-- `agents.md`: project guidance notes
+- Compares tourism receipts as a share of exports with employment and development indicators.
+- Shows coordinated country views: association scatterplots, small multiples, ternary employment composition, structural-shift dotplot, and data coverage matrix.
+- Supports filtering by country, year, data mode, sector variable, and development outcome.
+- Lets users click a country in the association view to inspect its focus-country employment pathway.
 
-## Quick Start
-### 1. Create and activate a virtual environment
+## Repository Structure
+
+```text
+app/
+  tourism_structural_dashboard_designed.py   # standard app entry point
+assets/
+  dashboard.css                              # Dash styling
+docs/
+  *.md                                       # planning, checklist, and AI-use notes
+report/
+  main.tex                                   # final-report draft/setup
+  references.bib
+  figures/
+    README.md                                # manual figure export procedure
+tourism_structural_dashboard_designed.py     # main Dash implementation
+employmentdata.csv                           # WDI employment indicators
+tourism15indicators.csv                      # WDI tourism/development indicators
+requirements.txt
+AI_USAGE_LOG.md
+```
+
+## Requirements
+
+- Python 3.10 or newer recommended.
+- Packages listed in `requirements.txt`: Dash, Plotly, pandas, and NumPy.
+- The two CSV files must remain in the repository root unless the app data-loading paths are changed.
+
+## How To Run
+
 Windows PowerShell:
+
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python app\tourism_structural_dashboard_designed.py
 ```
 
 macOS/Linux:
+
 ```bash
-python3 -m venv .venv
+python -m venv .venv
 source .venv/bin/activate
-```
-
-### 2. Install dependencies
-```bash
 pip install -r requirements.txt
+python app/tourism_structural_dashboard_designed.py
 ```
 
-### 3. Run the dashboard
+Then open `http://127.0.0.1:8050`.
+
+The original root-level command also works:
+
 ```bash
 python tourism_structural_dashboard_designed.py
 ```
 
-Then open:
-- `http://127.0.0.1:8050`
+## Data Files
 
-## Notes
-- Keep `employmentdata.csv` and `tourism15indicators.csv` in the same folder as the Python dashboard script.
-- If you see `ModuleNotFoundError`, confirm your active interpreter is the one inside `.venv`.
+The project uses World Development Indicators data exported into:
 
-## Data Source
-- World Bank World Development Indicators (WDI)
+- `employmentdata.csv`
+- `tourism15indicators.csv`
 
+Key variables include international tourism receipts as a percentage of total exports, employment shares in services/industry/agriculture, GDP per capita, urban population share, poverty headcount, and Gini index. The app derives gender-average sector employment, latest-available snapshots, first-to-latest structural shifts, and data coverage percentages.
+
+## How To Reproduce Report Figures
+
+Automated screenshot export is not yet implemented. Use the manual procedure in `report/figures/README.md` and save figures into `report/figures/` with the filenames expected by `report/main.tex`.
+
+## Known Limitations
+
+- The analysis is exploratory and associational, not causal.
+- Tourism dependence is represented by one WDI indicator: international tourism receipts as a percentage of total exports.
+- Missing data can affect comparisons, especially for poverty and inequality indicators.
+- The report draft contains TODO markers for human-verified citations, use-case observations, screenshots, and final QA.
+
+## AI/Code Provenance
+
+Dashboard code was developed for the course using Python libraries and AI-assisted code review/editing. AI assistance is documented in `AI_USAGE_LOG.md` and `docs/ai_usage.md`; human review is still required before submission.

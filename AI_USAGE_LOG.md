@@ -143,3 +143,137 @@ Files changed:
 Human verification to complete:
 - [ ] Open dashboard and confirm the year text in the right-side Time input is readable
 - [ ] Confirm focus state border/outline is visible when clicking into the year input
+
+---
+
+## 2026-06-13 - Codex (GPT-5) initial final-submission draft/setup
+
+Prompt summary:
+Read `docs/10_CODEX_MASTER_PROMPT.md` and execute the plan through the initial draft/setup stage, then stop and list unresolved TODOs.
+
+AI output summary:
+- Added a standard `app/` entry point that delegates to the existing Dash implementation.
+- Updated README run instructions, repository structure, data-file assumptions, limitations, figure procedure, and AI/code provenance.
+- Removed variable marker-size encodings from association scatterplots and ternary views; retained contextual values in hover details.
+- Added a small-multiple association overview using constant-size marks and stable region hue.
+- Updated ternary axis labels to percentages and prioritized selected variables in the coverage matrix.
+- Reworked `report/main.tex` into a final-report draft scaffold with What/Why/How tables, design rationale, figures, use-case placeholders, and explicit TODO markers.
+- Added `report/figures/README.md` for manual screenshot export and `docs/ai_usage.md` for table-format AI documentation.
+
+Files changed:
+- `tourism_structural_dashboard_designed.py`
+- `app/tourism_structural_dashboard_designed.py`
+- `README.md`
+- `report/main.tex`
+- `report/figures/README.md`
+- `docs/ai_usage.md`
+- `AI_USAGE_LOG.md`
+
+Human verification to complete:
+- [ ] Run the dashboard and inspect all updated views.
+- [ ] Verify the small-multiple overview responds to countries, year, and data mode.
+- [ ] Export report figures into `report/figures/`.
+- [ ] Fill use-case observations from the actual dashboard.
+- [ ] Verify and add related-work citations.
+- [ ] Compile the final LaTeX report and fix layout/page-budget issues.
+
+---
+
+## 2026-06-13 - Codex (GPT-5) second report cleanup pass
+
+Prompt summary:
+Read `report/main.tex`, `report/references.bib`, and the compiled PDF, then remove visible TODOs, insert the supplied related-work prose, add missing citation entries, move interim-feedback content, and compile the report.
+
+AI output summary:
+- Converted unresolved report TODOs into LaTeX comments so they do not appear in the PDF.
+- Replaced the related-work placeholder with the user-supplied related-work text.
+- Added bibliography entries for the related-work citations and compiled the PDF.
+- Moved interim-feedback changes into a non-floating bullet list under Section 7.
+- Added short explanatory paragraphs for domain tasks and task abstraction.
+
+Files changed:
+- report/main.tex
+- report/references.bib
+- report/main.pdf
+- docs/ai_usage.md
+- AI_USAGE_LOG.md
+
+Human verification to complete:
+- [ ] Export final dashboard screenshots into `report/figures/`.
+- [ ] Fill use-case observations from actual dashboard inspection.
+- [ ] Inspect the compiled PDF layout visually before submission.
+
+---
+
+## 2026-06-13 - Codex (GPT-5) use-case observation summarizer
+
+Prompt summary:
+Create `scripts/summarize_use_cases.py` to load `employmentdata.csv` and `tourism15indicators.csv`, compute factual candidate observations for the selected country set, and write `docs/use_case_observations.md`.
+
+AI output summary:
+- Added a standalone Python summarizer that reproduces the dashboard's WDI indicator mapping and gender-average employment-sector shares.
+- Generated Markdown tables for latest-available 2020 values, tourism receipts versus services employment, first/latest employment-sector shares, structural shifts, coverage percentages, and ranked country lists.
+- Kept the generated document factual, with tables and short value summaries rather than conclusions.
+
+Files changed:
+- scripts/summarize_use_cases.py
+- docs/use_case_observations.md
+- AI_USAGE_LOG.md
+
+Human verification to complete:
+- [ ] Review `docs/use_case_observations.md` before inserting any observations into the report.
+
+---
+
+## 2026-06-13 - Codex (GPT-5) evidence insertion pass
+
+Prompt summary:
+Read `report/main.tex` and `docs/use_case_observations.md`, insert the supplied use-case evidence text, update the Morocco ternary figure reference, revise the abstract and conclusion, and compile the report.
+
+AI output summary:
+- Replaced Use Case 1 and Use Case 2 placeholder text with the user-provided evidence text.
+- Updated the ternary focus figure reference, caption, and label from Thailand/generic wording to Morocco.
+- Replaced the draft abstract and final conclusion text.
+- Compiled `report/main.pdf` with `latexmk` and checked remaining figure placeholders.
+
+Files changed:
+- report/main.tex
+- report/main.pdf
+- report/main.bbl
+- AI_USAGE_LOG.md
+
+Human verification to complete:
+- [ ] Export and inspect the remaining report figures, especially `fig_ternary_morocco.png`.
+
+---
+
+## 2026-06-14 - Codex (GPT-5) report figure regeneration and LaTeX wiring
+
+Prompt summary:
+Regenerate the missing report figures, avoid the Kaleido/browser backend after startup failures, wire real PNG files into `report/main.tex`, compile the PDF, and report warnings, page count, readability, and float placement.
+
+AI output summary:
+- Replaced the browser-dependent Plotly/Kaleido exporter with a Matplotlib-based `scripts/export_report_figures.py` that uses the dashboard's default countries and data transforms.
+- Generated all expected report figure PNGs in `report/figures/`.
+- Replaced LaTeX placeholder/fallback image handling with real `\includegraphics` calls and nearby `\autoref{}` mentions.
+- Added float barriers so figures stay with the design section instead of drifting to the conclusion/references.
+- Recompiled `report/main.pdf` and checked unresolved references/citations, overfull boxes, page count, and figure readability/placement.
+
+Files changed:
+- scripts/export_report_figures.py
+- report/figures/fig_dashboard_overview.png
+- report/figures/fig_association_views.png
+- report/figures/fig_small_multiples.png
+- report/figures/fig_ternary_morocco.png
+- report/figures/fig_structural_shift.png
+- report/figures/fig_data_coverage.png
+- report/main.tex
+- report/main.pdf
+- requirements.txt
+- tourism_structural_requirements.txt
+- docs/ai_usage.md
+- AI_USAGE_LOG.md
+
+Human verification to complete:
+- [ ] Inspect the final PDF at normal reading zoom before submission.
+- [ ] Confirm the dashboard overview screenshot is the desired crop/state.
